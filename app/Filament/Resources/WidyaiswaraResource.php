@@ -2,24 +2,27 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\InstansiResource\Pages;
-use App\Models\Instansi;
+use App\Filament\Resources\WidyaiswaraResource\Pages;
+use App\Filament\Resources\WidyaiswaraResource\RelationManagers;
+use App\Models\Widyaiswara;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Forms\Components\Grid;
 
-class InstansiResource extends Resource
+class WidyaiswaraResource extends Resource
 {
-    protected static ?string $model = Instansi::class;
+    protected static ?string $model = Widyaiswara::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Master Data';
 
@@ -34,21 +37,18 @@ class InstansiResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->columnSpan(2),
-                        Forms\Components\Textarea::make('address')
-                            ->label('Alamat')
-                            ->maxLength(65535)
+                        Forms\Components\TextInput::make('nip')
+                            ->label('NIP')
+                            ->required()
+                            ->maxLength(50)
                             ->columnSpan(2),
-                        Forms\Components\TextInput::make('phone')
-                            ->label('Telepon')
-                            ->maxLength(255),
                         Forms\Components\TextInput::make('email')
                             ->label('Email')
                             ->email()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('website')
-                            ->label('Website')
-                            ->url()
-                            ->maxLength(255),
+                        Forms\Components\TextInput::make('phone')
+                            ->label('Telepon')
+                            ->maxLength(20),
                     ]),
             ]);
     }
@@ -65,18 +65,14 @@ class InstansiResource extends Resource
                     ->label('Nama')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('address')
-                    ->label('Alamat')
-                    ->limit(50)
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->label('Telepon')
+                Tables\Columns\TextColumn::make('nip')
+                    ->label('NIP')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('website')
-                    ->label('Website')
+                Tables\Columns\TextColumn::make('phone')
+                    ->label('Telepon')
                     ->sortable(),
             ])
             ->filters([
@@ -106,10 +102,10 @@ class InstansiResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListInstansis::route('/'),
-            'create' => Pages\CreateInstansi::route('/create'),
-            'edit' => Pages\EditInstansi::route('/{record}/edit'),
-            'view' => Pages\ViewInstansi::route('/{record}'),
+            'index' => Pages\ListWidyaiswaras::route('/'),
+            'create' => Pages\CreateWidyaiswara::route('/create'),
+            'edit' => Pages\EditWidyaiswara::route('/{record}/edit'),
+            'view' => Pages\ViewWidyaiswara::route('/{record}'),
         ];
     }
 }

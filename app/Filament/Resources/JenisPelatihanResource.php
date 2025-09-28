@@ -2,24 +2,27 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\InstansiResource\Pages;
-use App\Models\Instansi;
+use App\Filament\Resources\JenisPelatihanResource\Pages;
+use App\Filament\Resources\JenisPelatihanResource\RelationManagers;
+use App\Models\JenisPelatihan;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Forms\Components\Grid;
 
-class InstansiResource extends Resource
+class JenisPelatihanResource extends Resource
 {
-    protected static ?string $model = Instansi::class;
+    protected static ?string $model = JenisPelatihan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 
     protected static ?string $navigationGroup = 'Master Data';
 
@@ -30,25 +33,10 @@ class InstansiResource extends Resource
                 Grid::make(2)
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                            ->label('Nama')
+                            ->label('Nama Jenis Pelatihan')
                             ->required()
                             ->maxLength(255)
                             ->columnSpan(2),
-                        Forms\Components\Textarea::make('address')
-                            ->label('Alamat')
-                            ->maxLength(65535)
-                            ->columnSpan(2),
-                        Forms\Components\TextInput::make('phone')
-                            ->label('Telepon')
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('email')
-                            ->label('Email')
-                            ->email()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('website')
-                            ->label('Website')
-                            ->url()
-                            ->maxLength(255),
                     ]),
             ]);
     }
@@ -62,22 +50,9 @@ class InstansiResource extends Resource
                     ->sortable()
                     ->toggleable(false),
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Nama')
+                    ->label('Nama Jenis Pelatihan')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('address')
-                    ->label('Alamat')
-                    ->limit(50)
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->label('Telepon')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->label('Email')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('website')
-                    ->label('Website')
-                    ->sortable(),
             ])
             ->filters([
                 //
@@ -106,10 +81,10 @@ class InstansiResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListInstansis::route('/'),
-            'create' => Pages\CreateInstansi::route('/create'),
-            'edit' => Pages\EditInstansi::route('/{record}/edit'),
-            'view' => Pages\ViewInstansi::route('/{record}'),
+            'index' => Pages\ListJenisPelatihans::route('/'),
+            'create' => Pages\CreateJenisPelatihan::route('/create'),
+            'edit' => Pages\EditJenisPelatihan::route('/{record}/edit'),
+            'view' => Pages\ViewJenisPelatihan::route('/{record}'),
         ];
     }
 }

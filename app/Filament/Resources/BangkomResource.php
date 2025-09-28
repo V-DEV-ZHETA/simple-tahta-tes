@@ -19,7 +19,7 @@ class BangkomResource extends Resource
 {
     protected static ?string $model = Bangkom::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
     protected static function getFormSchema(): array
     {
