@@ -67,11 +67,8 @@ class TahunResource extends Resource
                 //
             ])
             ->actions([
-                ActionGroup::make([
-                    ViewAction::make(),
-                    EditAction::make(),
-                    DeleteAction::make(),
-                ]),
+                Tables\Actions\EditAction::make()->icon('heroicon-o-pencil')->label('Edit'),
+                Tables\Actions\DeleteAction::make()->icon('heroicon-o-trash')->label('Hapus'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -91,8 +88,6 @@ class TahunResource extends Resource
     {
         return [
             'index' => Pages\ListTahuns::route('/'),
-            'create' => Pages\CreateTahun::route('/create'),
-            'edit' => Pages\EditTahun::route('/{record}/edit'),
             'view' => Pages\ViewTahun::route('/{record}'),
         ];
     }

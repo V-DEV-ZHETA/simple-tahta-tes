@@ -82,6 +82,23 @@ class BangkomResource extends Resource
                             ->rules(['integer', 'min:1'])
                             ->dehydrateStateUsing(fn ($state) => is_numeric($state) ? (int) $state : null)
                             ->columnSpan(2),
+
+                        Forms\Components\Repeater::make('jadwal_codes')
+                            ->label('Kode Jadwal')
+                            ->schema([
+                                Forms\Components\TextInput::make('code')
+                                    ->label('Kode Jadwal')
+                                    ->required()
+                                    ->placeholder('SPL-XXXX')
+                                    ->default(fn () => 'SPL-' . str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT))
+                                    ->columnSpan(2),
+                            ])
+                            ->defaultItems(2)
+                            ->createItemButtonLabel('Tambah Kode')
+                            ->mutateDehydrateStateUsing(function ($state) {
+                                return collect($state)->pluck('code')->filter()->toArray();
+                            })
+                            ->columnSpan(2),
                     ]),
                 Step::make('Panitia')
                     ->columns(2)
@@ -166,6 +183,47 @@ class BangkomResource extends Resource
                 Tables\Columns\TextColumn::make('kuota')
                     ->label('Kuota')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('jadwal_codes')
+                    ->label('Kode Jadwal')
+                    ->formatStateUsing(function ($state) {
+                        // Jika state null, kembalikan string kosong
+                        if (is_null($state)) {
+                            return '';
+                        }
+                        
+                        // Jika state adalah array, ambil semua kode
+                        if (is_array($state)) {
+                            $codes = collect($state)
+                                ->filter(function ($item) {
+                                    // Untuk format baru: string langsung
+                                    if (is_string($item)) {
+                                        return !empty($item);
+                                    }
+                                    // Untuk format lama: array dengan key 'code'
+                                    if (is_array($item) && isset($item['code'])) {
+                                        return !empty($item['code']);
+                                    }
+                                    return false;
+                                })
+                                ->map(function ($item) {
+                                    // Untuk format baru: string langsung
+                                    if (is_string($item)) {
+                                        return $item;
+                                    }
+                                    // Untuk format lama: array dengan key 'code'
+                                    if (is_array($item) && isset($item['code'])) {
+                                        return $item['code'];
+                                    }
+                                    return '';
+                                });
+                                
+                            return $codes->join(', ');
+                        }
+                        
+                        // Jika state adalah string (data lama), kembalikan apa adanya
+                        return $state;
+                    })
+                    ->sortable(false),
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Status')
                     ->colors([
