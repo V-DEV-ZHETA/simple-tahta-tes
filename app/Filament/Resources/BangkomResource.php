@@ -49,7 +49,7 @@ class BangkomResource extends Resource
                             ->columnSpan(12),
                         Forms\Components\Select::make('bentuk_pelatihan_id')
                             ->label('Bentuk Pelatihan')
-                            ->relationship('bentukPelatihan', 'name')
+                            ->relationship('bentukPelatihan', 'bentuk')
                             ->required()
                             ->columnSpan(12),
                         Forms\Components\Select::make('sasaran_id')
@@ -193,7 +193,7 @@ class BangkomResource extends Resource
                     ->relationship('jenisPelatihan', 'name')
                     ->label('Jenis Pelatihan'),
                 Tables\Filters\SelectFilter::make('bentuk_pelatihan_id')
-                    ->relationship('bentukPelatihan', 'name')
+                    ->relationship('bentukPelatihan', 'bentuk')
                     ->label('Bentuk Pelatihan'),
                 Tables\Filters\SelectFilter::make('sasaran_id')
                     ->relationship('sasaran', 'name')

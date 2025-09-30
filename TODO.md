@@ -1,16 +1,2 @@
-- [x] Remove 'jalur' from fillable in BentukPelatihan.php
-- [x] Remove 'jalur' select from form in BentukPelatihanResource.php
-- [x] Remove orderBy('jalur') and 'jalur' columns from table in BentukPelatihanResource.php
-- [x] Create migration to drop 'jalur' column
-- [x] Run migration
-- [x] Delete unused migration: 2025_10_05_000004_add_jalur_to_bentuk_pelatihans_table.php
-- [x] Delete unused migration: 2025_10_05_000005_update_bentuk_pelatihans_add_jalur_column.php
-- [x] Delete unused migration: 2025_09_28_000007_create_coachings_table.php (already deleted)
-- [x] Delete unused migration: 2025_09_28_000008_create_mentorings_table.php (already deleted)
-- [x] Delete unused migration: 2025_10_05_000001_create_coachings_table.php
-- [x] Delete unused migration: 2025_10_05_000002_update_coachings_table.php
-- [x] Delete unused migration: 2025_10_05_000003_drop_coachings_table.php
-- [x] Fix BentukPelatihan primary key to use auto-incrementing id instead of ulid
-- [x] Update bangkoms table bentuk_pelatihan_id column to unsignedBigInteger
-- [x] Add foreign key constraint from bangkoms.bentuk_pelatihan_id to bentuk_pelatihan.id
-- [x] Test insert operation to confirm fix works
+- [x] Fix BentukPelatihan relationship in BangkomResource.php: Change 'name' to 'bentuk' in Select and SelectFilter for bentuk_pelatihan_id
+- [x] Fix BentukPelatihan relationship in ViewBangkom.php: Change 'name' to 'bentuk' in Select for bentuk_pelatihan_id

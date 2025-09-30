@@ -34,7 +34,7 @@ class ViewBangkom extends ViewRecord
                         ->disabled(),
                     Forms\Components\Select::make('bentuk_pelatihan_id')
                         ->label('Bentuk Pelatihan')
-                        ->relationship('bentukPelatihan', 'name')
+                        ->relationship('bentukPelatihan', 'bentuk')
                         ->disabled(),
                     Forms\Components\Select::make('sasaran_id')
                         ->label('Sasaran')
