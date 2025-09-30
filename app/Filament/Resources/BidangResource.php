@@ -45,14 +45,17 @@ class BidangResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
+                Tables\Columns\TextColumn::make('row_number')
                     ->label('No')
-                    ->sortable()
-                    ->toggleable(false),
+                    ->toggleable(false)
+                    ->extraAttributes(['style' => 'width: 5%; min-width: 50px;'])
+                    ->formatStateUsing(fn ($state, $record, $loop) => $loop->iteration)
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Bidang')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->grow(),
             ])
             ->filters([
                 //

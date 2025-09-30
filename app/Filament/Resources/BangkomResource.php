@@ -131,7 +131,7 @@ class BangkomResource extends Resource
                             ->columnSpan(12),
                     ]),
             ])->columnSpanFull()
-              ->startOnStep(4)
+            //   ->startOnStep(4)
               ->extraAttributes(['style' => 'width: 100%; max-width: none;']),
         ];
     }
