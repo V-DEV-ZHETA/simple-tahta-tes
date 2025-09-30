@@ -10,3 +10,7 @@
 - [x] Delete unused migration: 2025_10_05_000001_create_coachings_table.php
 - [x] Delete unused migration: 2025_10_05_000002_update_coachings_table.php
 - [x] Delete unused migration: 2025_10_05_000003_drop_coachings_table.php
+- [x] Fix BentukPelatihan primary key to use auto-incrementing id instead of ulid
+- [x] Update bangkoms table bentuk_pelatihan_id column to unsignedBigInteger
+- [x] Add foreign key constraint from bangkoms.bentuk_pelatihan_id to bentuk_pelatihan.id
+- [x] Test insert operation to confirm fix works
