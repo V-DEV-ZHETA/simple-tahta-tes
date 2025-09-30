@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('sasarans', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('deskripsi');
             $table->timestamps();
         });
     }

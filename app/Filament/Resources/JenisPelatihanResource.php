@@ -30,13 +30,16 @@ class JenisPelatihanResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make(2)
+                Grid::make(1)
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->label('Nama Jenis Pelatihan')
                             ->required()
                             ->maxLength(255)
-                            ->columnSpan(2),
+                            ->columnSpan(1),
+                        Forms\Components\TextInput::make('deskripsi')
+                        ->columnSpan(1)
+                        ->label('Deskripsi'),
                     ]),
             ]);
     }
@@ -50,16 +53,25 @@ class JenisPelatihanResource extends Resource
                     ->sortable()
                     ->toggleable(false),
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Nama Jenis Pelatihan')
+                    ->label('Jenis Pelatihan')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->formatStateUsing(function ($state, $record) {
+                        $slug = $record->name ? "<br><small>Slug : /{$record->name}</small>" : "";
+                        return $state . $slug;
+                    })
+                    ->html(),
+                Tables\Columns\TextColumn::make('deskripsi')
+                ->label('Deskripsi')
+                ->grow()
+                ->sortable()
+                ->searchable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 ActionGroup::make([
-                    ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
                 ]),
@@ -82,9 +94,6 @@ class JenisPelatihanResource extends Resource
     {
         return [
             'index' => Pages\ListJenisPelatihans::route('/'),
-            'create' => Pages\CreateJenisPelatihan::route('/create'),
-            'edit' => Pages\EditJenisPelatihan::route('/{record}/edit'),
-            'view' => Pages\ViewJenisPelatihan::route('/{record}'),
         ];
     }
 }

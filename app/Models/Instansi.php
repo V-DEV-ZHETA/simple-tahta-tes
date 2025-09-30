@@ -9,5 +9,9 @@ class Instansi extends Model
     protected $fillable = [
         'name',
         'description',
+        'address',
+        'phone',
+        'email',
+        'website',
     ];
 }

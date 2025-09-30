@@ -59,7 +59,6 @@ class BidangResource extends Resource
             ])
             ->actions([
                 ActionGroup::make([
-                    ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
                 ]),
@@ -82,9 +81,6 @@ class BidangResource extends Resource
     {
         return [
             'index' => Pages\ListBidangs::route('/'),
-            'create' => Pages\CreateBidang::route('/create'),
-            'edit' => Pages\EditBidang::route('/{record}/edit'),
-            'view' => Pages\ViewBidang::route('/{record}'),
         ];
     }
 }

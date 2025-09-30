@@ -14,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Filters;
 
 class BangkomResource extends Resource
 {
@@ -58,24 +59,24 @@ class BangkomResource extends Resource
                             ->columnSpan(12),
                     ]),
                 Step::make('Waktu, Tempat dan Kuota')
-                    ->columns(2)
+                    ->columns(12)
                     ->schema([
                         Forms\Components\DatePicker::make('tanggal_mulai')
                             ->label('Tanggal Mulai')
                             ->required()
-                            ->columnSpan(2),
+                            ->columnSpan(12),
                         Forms\Components\DatePicker::make('tanggal_berakhir')
                             ->label('Tanggal Berakhir')
                             ->required()
-                            ->columnSpan(2),
+                            ->columnSpan(12),
                         Forms\Components\TextInput::make('tempat')
                             ->label('Tempat')
                             ->placeholder('Venue/Tempat Kegiatan')
                             ->required()
-                            ->columnSpan(2),
+                            ->columnSpan(12),
                         Forms\Components\Textarea::make('alamat')
                             ->label('Alamat')
-                            ->columnSpan(2),
+                            ->columnSpan(12),
                         Forms\Components\TextInput::make('kuota')
                             ->label('Kuota')
                             ->required()
@@ -83,22 +84,6 @@ class BangkomResource extends Resource
                             ->dehydrateStateUsing(fn ($state) => is_numeric($state) ? (int) $state : null)
                             ->columnSpan(2),
 
-                        Forms\Components\Repeater::make('jadwal_codes')
-                            ->label('Kode Jadwal')
-                            ->schema([
-                                Forms\Components\TextInput::make('code')
-                                    ->label('Kode Jadwal')
-                                    ->required()
-                                    ->placeholder('SPL-XXXX')
-                                    ->default(fn () => 'SPL-' . str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT))
-                                    ->columnSpan(2),
-                            ])
-                            ->defaultItems(2)
-                            ->createItemButtonLabel('Tambah Kode')
-                            ->mutateDehydrateStateUsing(function ($state) {
-                                return collect($state)->pluck('code')->filter()->toArray();
-                            })
-                            ->columnSpan(2),
                     ]),
                 Step::make('Panitia')
                     ->columns(2)
@@ -106,11 +91,11 @@ class BangkomResource extends Resource
                         Forms\Components\TextInput::make('nama_panitia')
                             ->label('Nama Panitia')
                             ->required()
-                            ->columnSpan(2),
+                            ->columnSpan(12),
                         Forms\Components\TextInput::make('telepon_panitia')
                             ->label('Telepon Panitia')
                             ->required()
-                            ->columnSpan(2),
+                            ->columnSpan(12),
                     ]),
                 Step::make('Kurikulum')
                     ->schema([
@@ -146,6 +131,7 @@ class BangkomResource extends Resource
                             ->columnSpan(12),
                     ]),
             ])->columnSpanFull()
+              ->startOnStep(4)
               ->extraAttributes(['style' => 'width: 100%; max-width: none;']),
         ];
     }
@@ -167,6 +153,7 @@ class BangkomResource extends Resource
                     ->label('Nama Kegiatan')
                     ->sortable()
                     ->searchable()
+                    ->grow()
                     ->formatStateUsing(fn ($state) => e($state)),
                 Tables\Columns\TextColumn::make('jenisPelatihan.name')
                     ->label('Jenis Pelatihan')
@@ -174,6 +161,7 @@ class BangkomResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_mulai')
                     ->label('Tanggal Pelatihan')
+                    ->grow()
                     ->formatStateUsing(function ($state, $record) {
                         $start = Carbon::parse($record->tanggal_mulai)->format('d M');
                         $end = Carbon::parse($record->tanggal_berakhir)->format('d M');
@@ -183,47 +171,7 @@ class BangkomResource extends Resource
                 Tables\Columns\TextColumn::make('kuota')
                     ->label('Kuota')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('jadwal_codes')
-                    ->label('Kode Jadwal')
-                    ->formatStateUsing(function ($state) {
-                        // Jika state null, kembalikan string kosong
-                        if (is_null($state)) {
-                            return '';
-                        }
-                        
-                        // Jika state adalah array, ambil semua kode
-                        if (is_array($state)) {
-                            $codes = collect($state)
-                                ->filter(function ($item) {
-                                    // Untuk format baru: string langsung
-                                    if (is_string($item)) {
-                                        return !empty($item);
-                                    }
-                                    // Untuk format lama: array dengan key 'code'
-                                    if (is_array($item) && isset($item['code'])) {
-                                        return !empty($item['code']);
-                                    }
-                                    return false;
-                                })
-                                ->map(function ($item) {
-                                    // Untuk format baru: string langsung
-                                    if (is_string($item)) {
-                                        return $item;
-                                    }
-                                    // Untuk format lama: array dengan key 'code'
-                                    if (is_array($item) && isset($item['code'])) {
-                                        return $item['code'];
-                                    }
-                                    return '';
-                                });
-                                
-                            return $codes->join(', ');
-                        }
-                        
-                        // Jika state adalah string (data lama), kembalikan apa adanya
-                        return $state;
-                    })
-                    ->sortable(false),
+
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Status')
                     ->colors([
@@ -232,9 +180,24 @@ class BangkomResource extends Resource
                         'danger' => 'Cancelled',
                     ])
                     ->sortable(),
+                    
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'Draft' => 'Draft',
+                        'Published' => 'Published',
+                        'Cancelled' => 'Cancelled',
+                    ]),
+                Tables\Filters\SelectFilter::make('jenis_pelatihan_id')
+                    ->relationship('jenisPelatihan', 'name')
+                    ->label('Jenis Pelatihan'),
+                Tables\Filters\SelectFilter::make('bentuk_pelatihan_id')
+                    ->relationship('bentukPelatihan', 'name')
+                    ->label('Bentuk Pelatihan'),
+                Tables\Filters\SelectFilter::make('sasaran_id')
+                    ->relationship('sasaran', 'name')
+                    ->label('Sasaran'),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([

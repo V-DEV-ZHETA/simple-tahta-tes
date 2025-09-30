@@ -6,5 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sasaran extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = [
+        
+        'name',
+        'deskripsi',
+    ];
 }

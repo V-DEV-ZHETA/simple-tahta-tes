@@ -37,6 +37,10 @@ class SasaranResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->columnSpan(2),
+                        Forms\Components\Textarea::make('deskripsi')
+                            ->label('Deskripsi')
+                            ->rows(3)
+                            ->columnSpan(2),
                     ]),
             ]);
     }
@@ -51,6 +55,17 @@ class SasaranResource extends Resource
                     ->toggleable(false),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Sasaran')
+                    ->formatStateUsing(function ($state, $record) {
+                        $slug = $record->name ? "<br><small>Slug : /{$record->name}</small>" : "";
+                        return $state . $slug;
+                    })
+                    ->sortable()
+                    ->html()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('deskripsi')
+                    ->label('Deskripsi')
+                    ->grow()
+                    ->limit(50)
                     ->sortable()
                     ->searchable(),
             ])
@@ -59,7 +74,6 @@ class SasaranResource extends Resource
             ])
             ->actions([
                 ActionGroup::make([
-                    ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
                 ]),

@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bidangs', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->timestamps();
+        Schema::table('jenis_pelatihans', function (Blueprint $table) {
+            $table->string('deskripsi')->nullable()->default('Deskripsi belum diisi')->change();
         });
     }
 
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bidangs');
+        Schema::table('jenis_pelatihans', function (Blueprint $table) {
+            $table->dropColumn('deskripsi');
+        });
     }
 };

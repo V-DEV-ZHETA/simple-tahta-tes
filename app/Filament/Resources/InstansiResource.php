@@ -64,20 +64,26 @@ class InstansiResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama')
                     ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('address')
-                    ->label('Alamat')
-                    ->limit(50)
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->label('Telepon')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->label('Email')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('website')
-                    ->label('Website')
-                    ->sortable(),
+                    ->searchable()
+                    ->grow()
+                    ->html(),
+                Tables\Columns\TextColumn::make('address') // Use a valid attribute or no attribute
+                    ->label('Kontak')
+                    ->formatStateUsing(function ($record) {
+                        $phone = $record->phone ? "No. Telepon : {$record->phone}" : "-";
+                        $email = $record->email ? "Email : {$record->email}" : "";
+                        $website = $record->website ? "Website : {$record->website}" : "";
+                        $contact =$phone;
+                        if ($email) {
+                            $contact .= "<br>" . $email;
+                        }
+                        if ($website) {
+                            $contact .= "<br>" . $website;
+                        }
+                        return $contact;
+                    })
+                    ->html()
+                    ->sortable(false),
             ])
             ->filters([
                 //
@@ -107,9 +113,6 @@ class InstansiResource extends Resource
     {
         return [
             'index' => Pages\ListInstansis::route('/'),
-            'create' => Pages\CreateInstansi::route('/create'),
-            'edit' => Pages\EditInstansi::route('/{record}/edit'),
-            'view' => Pages\ViewInstansi::route('/{record}'),
         ];
     }
 }
