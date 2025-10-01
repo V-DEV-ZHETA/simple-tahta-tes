@@ -29,7 +29,7 @@ class ListBangkoms extends ListRecords
                     return Excel::download(new BangkomExport(), 'jadwal-bangkom-' . now()->format('Y-m-d') . '.xlsx');
                 }),
             Actions\CreateAction::make()
-                ->label('Buat Jadwal Bangkom'),
+                ->label('Buat Jadwal'),
         ];
     }
 
