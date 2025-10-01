@@ -25,12 +25,14 @@ class Bangkom extends Model
         'nama_panitia',
         'telepon_panitia',
         'status',
+        'kurikulum',
     ];
 
     protected $casts = [
         'tanggal_mulai' => 'date',
         'tanggal_berakhir' => 'date',
         'kuota' => 'integer',
+        'kurikulum' => 'array',
     ];
 
 

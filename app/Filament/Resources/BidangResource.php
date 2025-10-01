@@ -45,11 +45,11 @@ class BidangResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('row_number')
+                Tables\Columns\TextColumn::make('id')
                     ->label('No')
                     ->toggleable(false)
                     ->extraAttributes(['style' => 'width: 5%; min-width: 50px;'])
-                    ->formatStateUsing(fn ($state, $record, $loop) => $loop->iteration)
+                    ->getStateUsing(fn ($record, $rowLoop) => $rowLoop->iteration)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Bidang')

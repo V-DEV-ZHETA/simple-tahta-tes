@@ -1,2 +1,5 @@
-- [x] Fix BentukPelatihan relationship in BangkomResource.php: Change 'name' to 'bentuk' in Select and SelectFilter for bentuk_pelatihan_id
-- [x] Fix BentukPelatihan relationship in ViewBangkom.php: Change 'name' to 'bentuk' in Select for bentuk_pelatihan_id
+# TODO: Kecilkan Tampilan Website
+
+## Steps to Complete
+- [x] Update AdminPanelProvider.php to set maxContentWidth('5xl') and sidebarWidth(200) for smaller display
+- [ ] Test the changes by running the application and checking the layout

@@ -52,7 +52,8 @@ class SasaranResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->label('No')
                     ->sortable()
-                    ->toggleable(false),
+                    ->toggleable(false)
+                    ->getStateUsing(fn ($record, $rowLoop) => $rowLoop->iteration),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Sasaran')
                     ->formatStateUsing(function ($state, $record) {
@@ -96,9 +97,6 @@ class SasaranResource extends Resource
     {
         return [
             'index' => Pages\ListSasarans::route('/'),
-            'create' => Pages\CreateSasaran::route('/create'),
-            'edit' => Pages\EditSasaran::route('/{record}/edit'),
-            'view' => Pages\ViewSasaran::route('/{record}'),
         ];
     }
 }

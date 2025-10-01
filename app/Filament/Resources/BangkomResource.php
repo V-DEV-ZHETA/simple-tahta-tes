@@ -148,20 +148,25 @@ class BangkomResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->label('No')
                     ->sortable()
-                    ->toggleable(false),
-                Tables\Columns\TextColumn::make('nama_kegiatan')
-                    ->label('Nama Kegiatan')
-                    ->sortable()
-                    ->searchable()
-                    ->grow()
-                    ->formatStateUsing(fn ($state) => e($state)),
-                Tables\Columns\TextColumn::make('jenisPelatihan.name')
+                    ->toggleable(false)
+                    ->getStateUsing(fn ($record, $rowLoop) => $rowLoop->iteration),
+Tables\Columns\TextColumn::make('nama_kegiatan')
+    ->label('Nama Kegiatan')
+    ->sortable()
+    ->searchable()
+    ->html()
+->formatStateUsing(function ($state, $record) {
+    $name = e($state);
+    $code = $record->kode_kegiatan ?? '';
+    $badge = $code ? '<div style="margin-top: 4px; display: block; background-color: #fff1e7ff; color: #ff6a00ff; font-weight: 600; font-size: 0.65rem; padding: 1px 10px; border-radius: 6px; text-transform: uppercase; width: fit-content;">' . e($code) . '</div>' : '';
+    return $name . $badge;
+}),
+                Tables\Columns\TextColumn::make('jenisPelatihan.name')->getStateUsing(fn ($record, $rowLoop) => $rowLoop->iteration)
                     ->label('Jenis Pelatihan')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_mulai')
                     ->label('Tanggal Pelatihan')
-                    ->grow()
                     ->formatStateUsing(function ($state, $record) {
                         $start = Carbon::parse($record->tanggal_mulai)->format('d M');
                         $end = Carbon::parse($record->tanggal_berakhir)->format('d M');

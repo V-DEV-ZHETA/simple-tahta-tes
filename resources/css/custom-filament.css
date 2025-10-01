@@ -1,0 +1,4 @@
+/* Custom Filament CSS to reduce global font size */
+body {
+    font-size: 0.75rem !important;
+}

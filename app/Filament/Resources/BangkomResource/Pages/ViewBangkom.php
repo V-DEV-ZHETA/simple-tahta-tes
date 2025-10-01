@@ -15,86 +15,63 @@ class ViewBangkom extends ViewRecord
         return [
             Forms\Components\Section::make('Kegiatan')
                 ->schema([
-                    Forms\Components\TextInput::make('nomor_jadwal')
+                    Forms\Components\Placeholder::make('kode_kegiatan')
                         ->label('Nomor Jadwal/Kegiatan')
-                        ->disabled(),
-                    Forms\Components\Select::make('instansi_id')
+                        ->content(fn ($record) => $record->kode_kegiatan ?? '-')
+                        ->columnSpanFull(),
+                    Forms\Components\Placeholder::make('instansi.name')
                         ->label('Instansi Pelaksana')
-                        ->relationship('instansi', 'name')
-                        ->disabled(),
-                    Forms\Components\TextInput::make('unit_kerja')
+                        ->content(fn ($record) => $record->instansi->name ?? '-')
+                        ->columnSpanFull(),
+                    Forms\Components\Placeholder::make('unit_kerja')
                         ->label('Unit Kerja / Perangkat Daerah Pelaksana')
-                        ->disabled(),
-                    Forms\Components\TextInput::make('nama_kegiatan')
+                        ->content(fn ($record) => $record->unit_kerja ?? '-')
+                        ->columnSpanFull(),
+                    Forms\Components\Placeholder::make('nama_kegiatan')
                         ->label('Nama Kegiatan')
-                        ->disabled(),
-                    Forms\Components\Select::make('jenis_pelatihan_id')
+                        ->content(fn ($record) => $record->nama_kegiatan ?? '-')
+                        ->columnSpanFull(),
+                    Forms\Components\Placeholder::make('jenisPelatihan.name')
                         ->label('Jenis Pelatihan')
-                        ->relationship('jenisPelatihan', 'name')
-                        ->disabled(),
-                    Forms\Components\Select::make('bentuk_pelatihan_id')
+                        ->content(fn ($record) => $record->jenisPelatihan->name ?? '-')
+                        ->columnSpanFull(),
+                    Forms\Components\Placeholder::make('bentukPelatihan.bentuk')
                         ->label('Bentuk Pelatihan')
-                        ->relationship('bentukPelatihan', 'bentuk')
-                        ->disabled(),
-                    Forms\Components\Select::make('sasaran_id')
+                        ->content(fn ($record) => $record->bentukPelatihan->bentuk ?? '-')
+                        ->columnSpanFull(),
+                    Forms\Components\Placeholder::make('sasaran.name')
                         ->label('Sasaran')
-                        ->relationship('sasaran', 'name')
-                        ->disabled(),
-                ])->columns(2),
+                        ->content(fn ($record) => $record->sasaran->name ?? '-')
+                        ->columnSpanFull(),
+                ])
+                ->columns(1)
+                ->compact(),
 
             Forms\Components\Section::make('Waktu, Tempat dan Kuota')
                 ->schema([
-                    Forms\Components\DatePicker::make('tanggal_mulai')
+                    Forms\Components\Placeholder::make('tanggal_mulai')
                         ->label('Tanggal Mulai')
-                        ->disabled(),
-                    Forms\Components\DatePicker::make('tanggal_berakhir')
+                        ->content(fn ($record) => $record->tanggal_mulai ? $record->tanggal_mulai->format('d/m/Y') : '-')
+                        ->columnSpanFull(),
+                    Forms\Components\Placeholder::make('tanggal_berakhir')
                         ->label('Tanggal Berakhir')
-                        ->disabled(),
-                    Forms\Components\TextInput::make('tempat')
+                        ->content(fn ($record) => $record->tanggal_berakhir ? $record->tanggal_berakhir->format('d/m/Y') : '-')
+                        ->columnSpanFull(),
+                    Forms\Components\Placeholder::make('tempat')
                         ->label('Tempat')
-                        ->disabled(),
-                    Forms\Components\Textarea::make('alamat')
+                        ->content(fn ($record) => $record->tempat ?? '-')
+                        ->columnSpanFull(),
+                    Forms\Components\Placeholder::make('alamat')
                         ->label('Alamat')
-                        ->disabled(),
-                    Forms\Components\TextInput::make('kuota')
+                        ->content(fn ($record) => $record->alamat ?? '-')
+                        ->columnSpanFull(),
+                    Forms\Components\Placeholder::make('kuota')
                         ->label('Kuota')
-                        ->disabled(),
-                ])->columns(2),
-
-            Forms\Components\Section::make('Panitia')
-                ->schema([
-                    Forms\Components\TextInput::make('nama_panitia')
-                        ->label('Nama Panitia')
-                        ->disabled(),
-                    Forms\Components\TextInput::make('telepon_panitia')
-                        ->label('Telepon Panitia')
-                        ->disabled(),
-                ])->columns(2),
-
-            Forms\Components\Section::make('Kurikulum')
-                ->schema([
-                    Forms\Components\Repeater::make('kurikulum')
-                        ->label('Kurikulum')
-                        ->disabled()
-                        ->schema([
-                            Forms\Components\TextInput::make('narasumber')
-                                ->label('Narasumber'),
-                            Forms\Components\TextInput::make('materi')
-                                ->label('Materi'),
-                            Forms\Components\TextInput::make('jam_pelajaran')
-                                ->label('Jam Pelajaran'),
-                        ]),
-                ]),
-
-            Forms\Components\Section::make('Deskripsi Kegiatan & Persyaratan')
-                ->schema([
-                    Forms\Components\Textarea::make('deskripsi')
-                        ->label('Deskripsi')
-                        ->disabled(),
-                    Forms\Components\Textarea::make('persyaratan')
-                        ->label('Persyaratan')
-                        ->disabled(),
-                ]),
+                        ->content(fn ($record) => $record->kuota ?? '-')
+                        ->columnSpanFull(),
+                ])
+                ->columns(1)
+                ->compact(),
         ];
     }
 }

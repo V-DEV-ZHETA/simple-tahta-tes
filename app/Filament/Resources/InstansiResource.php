@@ -60,7 +60,8 @@ class InstansiResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->label('No')
                     ->sortable()
-                    ->toggleable(false),
+                    ->toggleable(false)
+                    ->getStateUsing(fn ($record, $rowLoop) => $rowLoop->iteration),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama')
                     ->sortable()
