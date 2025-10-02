@@ -22,7 +22,7 @@ class SasaranResource extends Resource
 {
     protected static ?string $model = Sasaran::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-trophy';
+    protected static ?string $navigationIcon = 'feathericon-target';
 
     protected static ?string $navigationGroup = 'Master Data';
 

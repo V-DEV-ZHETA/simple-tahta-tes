@@ -16,14 +16,14 @@ class ListBangkoms extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('totalRecords')
-                ->label(fn () => 'Total Records ' . Bangkom::count())
-                ->color('warning')
-                ->icon('heroicon-o-information-circle')
-                ->disabled(),
+            // Actions\Action::make('totalRecords')
+            //     ->label(fn () => 'Total Records ' . Bangkom::count())
+            //     ->color('warning')
+            //     ->icon('heroicon-o-information-circle')
+            //     ->disabled(),
             Actions\Action::make('exportJadwal')
                 ->label('Export Jadwal Bangkom')
-                ->icon('heroicon-o-document-arrow-down')
+                ->icon('fileicon-microsoft-excel')
                 ->color('success')
                 ->action(function () {
                     return Excel::download(new BangkomExport(), 'jadwal-bangkom-' . now()->format('Y-m-d') . '.xlsx');

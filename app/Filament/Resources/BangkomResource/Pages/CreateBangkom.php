@@ -15,15 +15,14 @@ class CreateBangkom extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         do {
-            $code = 'SPL-' . Str::upper(Str::random(4));
+            $code = 'SPL - ' . Str::upper(Str::random(4));
         } while (Bangkom::where('kode_kegiatan', $code)->exists());
 
         $data['kode_kegiatan'] = $code;
 
-        // Generate jadwal_codes as flat array of unique random strings
         if (!isset($data['jadwal_codes']) || empty($data['jadwal_codes'])) {
             $jadwalCodes = [];
-            for ($i = 0; $i < 2; $i++) {  // Default 2 codes
+            for ($i = 0; $i < 2; $i++) {  
                 do {
                     $jadwalCode = 'SPL-' . Str::upper(Str::random(4));
                 } while (Bangkom::whereJsonContains('jadwal_codes', $jadwalCode)->exists());

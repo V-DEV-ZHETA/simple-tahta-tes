@@ -22,7 +22,7 @@ class WidyaiswaraResource extends Resource
 {
     protected static ?string $model = Widyaiswara::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'uiw-user';
 
     protected static ?string $navigationGroup = 'Master Data';
 

@@ -1,5 +1,9 @@
-# TODO: Kecilkan Tampilan Website
+# TODO: Tambahkan Button Ajukan Permohonan dan Histori Status pada BangkomResource
 
 ## Steps to Complete
-- [x] Update AdminPanelProvider.php to set maxContentWidth('5xl') and sidebarWidth(200) for smaller display
-- [ ] Test the changes by running the application and checking the layout
+- [ ] Buat migrasi untuk tabel status_histories
+- [ ] Buat model StatusHistory
+- [ ] Update model Bangkom untuk relasi statusHistories dan observer untuk log perubahan status
+- [ ] Update BangkomResource: tambah status "Submitted", tambah action "Ajukan Permohonan", tambah action "Histori Status"
+- [ ] Jalankan migrasi
+- [ ] Test fungsi button

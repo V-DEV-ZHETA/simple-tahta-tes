@@ -22,7 +22,7 @@ class BidangResource extends Resource
 {
     protected static ?string $model = Bidang::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationIcon = 'carbon-group-presentation';
 
     protected static ?string $navigationGroup = 'Master Data';
 
@@ -54,8 +54,7 @@ class BidangResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Bidang')
                     ->sortable()
-                    ->searchable()
-                    ->grow(),
+                    ->searchable(),
             ])
             ->filters([
                 //

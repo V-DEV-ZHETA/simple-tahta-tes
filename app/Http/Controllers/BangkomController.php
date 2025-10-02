@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bangkom;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 
@@ -31,5 +32,17 @@ class BangkomController extends Controller
         $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
         $objWriter->save('php://output');
         exit;
+    }
+
+    public function downloadPermohonan(Bangkom $bangkom)
+    {
+        // Assuming the file is stored in storage/app/public/permohonan_files or similar
+        // You may need to adjust the path based on your storage configuration
+        if ($bangkom->file_permohonan_path && Storage::exists($bangkom->file_permohonan_path)) {
+            return Storage::download($bangkom->file_permohonan_path);
+        }
+
+        // If no file is uploaded, generate a default document or show error
+        return response()->json(['error' => 'File permohonan tidak ditemukan'], 404);
     }
 }

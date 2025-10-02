@@ -8,3 +8,4 @@ Route::get('/', function () {
 });
 
 Route::get('/bangkom/{bangkom}/download-docx', [BangkomController::class, 'downloadDocx'])->name('bangkom.downloadDocx');
+Route::get('/bangkom/{bangkom}/download-permohonan', [BangkomController::class, 'downloadPermohonan'])->name('bangkom.downloadPermohonan');

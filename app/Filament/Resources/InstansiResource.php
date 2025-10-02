@@ -19,7 +19,7 @@ class InstansiResource extends Resource
 {
     protected static ?string $model = Instansi::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    protected static ?string $navigationIcon = 'carbon-building';
 
     protected static ?string $navigationGroup = 'Master Data';
 
@@ -63,6 +63,10 @@ class InstansiResource extends Resource
                     ->toggleable(false)
                     ->getStateUsing(fn ($record, $rowLoop) => $rowLoop->iteration),
                 Tables\Columns\TextColumn::make('name')
+                    ->formatStateUsing(function ($state, $record) {
+                        $slug = $record->address ? "<br><small>Alamat :{$record->address}</small>" : "";
+                        return $state . $slug;
+                    })
                     ->label('Nama')
                     ->sortable()
                     ->searchable()
