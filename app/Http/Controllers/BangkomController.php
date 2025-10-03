@@ -45,4 +45,42 @@ class BangkomController extends Controller
         // If no file is uploaded, generate a default document or show error
         return response()->json(['error' => 'File permohonan tidak ditemukan'], 404);
     }
+
+    public function downloadSttp(Bangkom $bangkom)
+    {
+        $phpWord = new PhpWord();
+
+        $section = $phpWord->addSection();
+        $section->addText('STTP Bangkom');
+        $section->addText('Nama Kegiatan: ' . $bangkom->nama_kegiatan);
+        // Add more fields as needed
+
+        $fileName = 'STTP_Bangkom_' . $bangkom->id . '.docx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        header('Content-Disposition: attachment;filename="' . $fileName . '"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
+        $objWriter->save('php://output');
+        exit;
+    }
+
+    public function kelengkapanDokumen(Bangkom $bangkom)
+    {
+        // Placeholder implementation
+        return response()->json(['message' => 'Kelengkapan Dokumen for Bangkom ' . $bangkom->id]);
+    }
+
+    public function dokumentasi(Bangkom $bangkom)
+    {
+        // Placeholder implementation
+        return response()->json(['message' => 'Dokumentasi for Bangkom ' . $bangkom->id]);
+    }
+
+    public function peserta(Bangkom $bangkom)
+    {
+        // Placeholder implementation
+        return response()->json(['message' => 'Peserta for Bangkom ' . $bangkom->id]);
+    }
 }

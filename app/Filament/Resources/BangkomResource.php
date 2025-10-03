@@ -17,6 +17,7 @@ use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters;
 use Filament\Notifications\Notification;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Storage;
 
 class BangkomResource extends Resource
 {
@@ -213,18 +214,98 @@ Tables\Columns\TextColumn::make('jenisPelatihan.name')
             ->label('Cetak permohonan')
             ->icon('heroicon-o-printer')
             ->url(fn ($record) => route('bangkom.downloadDocx', $record)),
-        Tables\Actions\Action::make('sttp')
-            ->label('STTP')
-            ->icon('heroicon-o-document-text')
-            ->url(fn ($record) => route('bangkom.downloadSttp', $record)),
-        Tables\Actions\Action::make('dokumen_permohonan')
-            ->label('Dokumen Permohonan')
-            ->icon('heroicon-o-document-text')
-            ->url(fn ($record) => route('bangkom.downloadPermohonan', $record)),
-        Tables\Actions\Action::make('kelengkapan_dokumen')
-            ->label('Kelengkapan Dokumen')
-            ->icon('heroicon-o-user')
-            ->url(fn ($record) => route('bangkom.kelengkapanDokumen', $record)),
+Tables\Actions\Action::make('dokumen_permohonan')
+    ->label('Dokumen Permohonan')
+    ->icon('heroicon-o-document-text')
+    ->form([
+        Forms\Components\FileUpload::make('file_permohonan')
+            ->label('File Permohonan')
+            ->required()
+            ->maxSize(102400) // 100MB in KB
+            ->acceptedFileTypes(['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'image/jpeg'])
+            ->helperText('Ukuran file maksimum: 100MB. Format yang diizinkan: PDF, DOCX, XLSX, PPTX, JPEG.')
+            ->enableOpen()
+            ->enableDownload(),
+    ])
+    ->modalHeading('Dokumen Permohonan')
+    ->modalSubmitActionLabel('Simpan')
+    ->modalWidth('md')
+    ->action(function ($record, array $data) {
+        if (isset($data['file_permohonan']) && is_object($data['file_permohonan'])) {
+            $filePath = $data['file_permohonan']->store('permohonan_files');
+            $record->file_permohonan_path = $filePath;
+            $record->save();
+        }
+        Notification::make()
+            ->title('File permohonan berhasil disimpan')
+            ->success()
+            ->send();
+    })
+    ->modalActions([
+        Tables\Actions\Action::make('close')
+            ->label('Tutup')
+            ->close(),
+    ]),
+Tables\Actions\Action::make('kelengkapan_dokumen')
+    ->label('Kelengkapan Dokumen')
+    ->icon('heroicon-o-user')
+    ->form([
+        Forms\Components\FileUpload::make('bahan_tayang')
+            ->label('Bahan Tayang')
+            ->maxSize(102400) // 100MB
+            ->acceptedFileTypes(['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'image/jpeg'])
+            ->helperText('Ukuran file maksimum: 100MB. Format yang diizinkan: PDF, DOCX, XLSX, PPTX, JPEG.'),
+        Forms\Components\FileUpload::make('pelaporan')
+            ->label('Pelaporan')
+            ->maxSize(10240) // 10MB
+            ->acceptedFileTypes(['application/pdf'])
+            ->required()
+            ->helperText('Ukuran file maksimum: 10MB. Format yang diizinkan: PDF.'),
+        Forms\Components\FileUpload::make('absensi')
+            ->label('Absensi')
+            ->maxSize(10240) // 10MB
+            ->acceptedFileTypes(['application/pdf'])
+            ->required()
+            ->helperText('Ukuran file maksimum: 10MB. Format yang diizinkan: PDF.'),
+        Forms\Components\FileUpload::make('surat_ijin')
+            ->label('Surat Ijin Penggunaan Spesimen TTD Kepala')
+            ->maxSize(10240) // 10MB
+            ->acceptedFileTypes(['application/pdf'])
+            ->required()
+            ->helperText('Ukuran file maksimum: 10MB. Format yang diizinkan: PDF.'),
+        Forms\Components\FileUpload::make('contoh_spesimen')
+            ->label('Contoh Spesimen TTD Kepala')
+            ->maxSize(10240) // 10MB
+            ->acceptedFileTypes(['image/png'])
+            ->required()
+            ->helperText('Ukuran file maksimum: 10MB. Format: PNG. Resolusi wajib HD.'),
+    ])
+    ->modalHeading('Kelengkapan Dokumen')
+    ->modalSubmitActionLabel('Simpan')
+    ->action(function ($record, array $data) {
+        // Save uploaded files and update the model
+        if (isset($data['bahan_tayang']) && is_object($data['bahan_tayang'])) {
+            $record->bahan_tayang_path = $data['bahan_tayang']->store('kelengkapan_files');
+        }
+        if (isset($data['pelaporan']) && is_object($data['pelaporan'])) {
+            $record->pelaporan_path = $data['pelaporan']->store('kelengkapan_files');
+        }
+        if (isset($data['absensi']) && is_object($data['absensi'])) {
+            $record->absensi_path = $data['absensi']->store('kelengkapan_files');
+        }
+        if (isset($data['surat_ijin']) && is_object($data['surat_ijin'])) {
+            $record->surat_ijin_path = $data['surat_ijin']->store('kelengkapan_files');
+        }
+        if (isset($data['contoh_spesimen']) && is_object($data['contoh_spesimen'])) {
+            $record->contoh_spesimen_path = $data['contoh_spesimen']->store('kelengkapan_files');
+        }
+        $record->save();
+
+        Notification::make()
+            ->title('Kelengkapan dokumen berhasil disimpan')
+            ->success()
+            ->send();
+    }),
         Tables\Actions\Action::make('dokumentasi')
             ->label('Dokumentasi')
             ->icon('heroicon-o-camera')
@@ -272,38 +353,38 @@ Forms\Components\Select::make('status')
                     ->success()
                     ->send();
             }),
-        Tables\Actions\Action::make('ajukan_permohonan')
-            ->label('Ajukan Permohonan')
-            ->icon('heroicon-o-paper-airplane')
-            ->form([
-                Forms\Components\FileUpload::make('file_permohonan')
-                    ->label('File Permohonan')
-                    ->required()
-                    ->maxSize(102400) // 100MB in KB
-                    ->acceptedFileTypes(['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'image/jpeg'])
-                    ->helperText('Ukuran file maksimum: 100MB. Format yang diizinkan: PDF, DOCX, XLSX, PPTX, JPEG.'),
-                Forms\Components\Checkbox::make('agreement')
-                    ->label('Dengan ini saya menyetujui bahwa data yang saya isi adalah benar dan dapat dipercaya.')
-                    ->required(),
-            ])
-            ->modalHeading('Ajukan Permohonan')
-            ->modalSubmitActionLabel('Submit')
-            ->action(function ($record, array $data) {
-                // Save uploaded file path to related model or field
-                if (isset($data['file_permohonan']) && is_object($data['file_permohonan'])) {
-                    $filePath = $data['file_permohonan']->store('permohonan_files');
-                    // Assuming Bangkom model has file_permohonan_path attribute or relation
-                    $record->file_permohonan_path = $filePath;
-                }
-                $record->status = 'Menunggu Verifikasi';
-                $record->save();
+Tables\Actions\Action::make('ajukan_permohonan')
+    ->label('Dokumen Permohonan')
+    ->icon('heroicon-o-paper-airplane')
+    ->form([
+        Forms\Components\FileUpload::make('file_permohonan')
+            ->label('File Permohonan')
+            ->required()
+            ->maxSize(102400) // 100MB in KB
+            ->acceptedFileTypes(['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'image/jpeg'])
+            ->helperText('Ukuran file maksimum: 100MB. Format yang diizinkan: PDF, DOCX, XLSX, PPTX, JPEG.'),
+        Forms\Components\Checkbox::make('agreement')
+            ->label('Dengan ini saya menyetujui bahwa data yang saya isi adalah benar dan dapat dipercaya.')
+            ->required(),
+    ])
+    ->modalHeading('Dokumen Permohonan')
+    ->modalSubmitActionLabel('Simpan')
+    ->action(function ($record, array $data) {
+        // Save uploaded file path to related model or field
+        if (isset($data['file_permohonan']) && is_object($data['file_permohonan'])) {
+            $filePath = $data['file_permohonan']->store('permohonan_files');
+            // Assuming Bangkom model has file_permohonan_path attribute or relation
+            $record->file_permohonan_path = $filePath;
+        }
+        $record->status = 'Menunggu Verifikasi';
+        $record->save();
 
-                Notification::make()
-                    ->title('Permohonan berhasil diajukan')
-                    ->success()
-                    ->send();
-            })
-            ->visible(fn ($record) => in_array($record->status, ['Draft', 'Menunggu Verifikasi', 'Submitted'])),
+        Notification::make()
+            ->title('Permohonan berhasil diajukan')
+            ->success()
+            ->send();
+    })
+    ->visible(fn ($record) => in_array($record->status, ['Draft', 'Menunggu Verifikasi', 'Submitted'])),
         Tables\Actions\Action::make('histori_status')
             ->label('Histori Status')
             ->icon('heroicon-o-clock')
