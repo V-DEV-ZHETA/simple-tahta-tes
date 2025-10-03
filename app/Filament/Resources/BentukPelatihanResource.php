@@ -25,7 +25,7 @@ class BentukPelatihanResource extends Resource
     protected static ?string $navigationLabel = 'Bentuk pelatihan';
     protected static ?string $pluralLabel = 'Bentuk Pelatihan';
     protected static ?string $slug = 'Bentuk-Pelatihan';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

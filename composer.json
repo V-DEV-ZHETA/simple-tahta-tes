@@ -11,6 +11,8 @@
         "brunocfalcao/blade-feather-icons": "^5.0",
         "codeat3/blade-carbon-icons": "^2.36",
         "codeat3/blade-file-icons": "^1.10",
+        "codeat3/blade-phosphor-icons": "^2.3",
+        "codeat3/blade-teeny-icons": "^1.11",
         "codeat3/blade-uiw-icons": "^1.6",
         "filament/filament": "^3.3",
         "laravel/framework": "^12.0",
