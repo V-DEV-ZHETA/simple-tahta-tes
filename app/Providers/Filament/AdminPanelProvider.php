@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Register;
 use BezhanSalleh\FilamentShield\Resources\RoleResource;
 use Filament\Facades\Filament;
 use Filament\Panel;
@@ -31,11 +32,12 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->registration(Register::class) 
             ->maxContentWidth('10xl')
             ->renderhook(PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABLE_BEFORE, fn(): View => view('components.total'))
             ->sidebarWidth(300)
             ->colors([
-                'primary' => Color::Yellow,
+                'primary' => Color::Blue,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

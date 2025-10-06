@@ -1,8 +1,10 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BangkomController;
-use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,5 +26,6 @@ Route::get('/bangkom/{bangkom}/download-permohonan', [BangkomController::class, 
 Route::get('/bangkom/{bangkom}/kelengkapan-dokumen', [BangkomController::class, 'kelengkapanDokumen'])->name('bangkom.kelengkapanDokumen');
 Route::get('/bangkom/{bangkom}/dokumentasi', [BangkomController::class, 'dokumentasi'])->name('bangkom.dokumentasi');
 Route::get('/bangkom/{bangkom}/peserta', [BangkomController::class, 'peserta'])->name('bangkom.peserta');
+
 
 require __DIR__.'/auth.php';
