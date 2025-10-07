@@ -32,6 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->brandName('SIMPLE BPSDM KALTIM')
             ->login(Login::class)
             ->registration(Register::class)
             ->maxContentWidth('10xl')

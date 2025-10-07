@@ -62,4 +62,9 @@ class User extends Authenticatable
     {
         static::observe(\App\Observers\UserObserver::class);
     }
+
+    public function isVerified(): bool
+    {
+        return !is_null($this->verified_at);
+    }
 }
