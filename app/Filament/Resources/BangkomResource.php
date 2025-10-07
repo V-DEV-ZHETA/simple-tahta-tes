@@ -182,10 +182,12 @@ Tables\Columns\TextColumn::make('jenisPelatihan.name')
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Status')
                     ->colors([
-                        'primary' => 'Draft',
-                        'success' => 'Verifikasi Berhasil',
+                        'gray' => 'Draft',
+                        'primary' => ['Menunggu Verifikasi I', 'Menunggu Verifikasi II'],
+                        'warning' => 'Pengelolaan',
+                        'success' => 'Terbit STTP',
+                        'secondary' => 'Verifikasi Berhasil',
                         'danger' => 'Cancelled',
-                        'warning' => 'Menunggu Verifikasi',
                     ])
                     ->sortable(),
                     
@@ -220,7 +222,7 @@ Tables\Actions\Action::make('dokumen_permohonan')
     ->icon('heroicon-o-document-text')
     ->form([
         Forms\Components\FileUpload::make('file_permohonan')
-            ->label('File Permohonan')
+            ->label('')
             ->required()
             ->maxSize(102400) // 100MB in KB
             ->acceptedFileTypes(['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'image/jpeg'])
@@ -394,11 +396,28 @@ Tables\Actions\Action::make('ajukan_permohonan')
 Tables\Actions\Action::make('verifikasi_terbit_sttp')
     ->label('Verifikasi dan Terbitkan STTP')
     ->icon('heroicon-o-check-circle')
-    ->requiresConfirmation()
-    ->modalHeading('Konfirmasi Verifikasi dan Terbit STTP')
-    ->modalDescription('Apakah Anda yakin ingin memverifikasi dan menerbitkan STTP untuk kegiatan ini?')
-    ->modalSubmitActionLabel('Ya, Terbitkan STTP')
-    ->action(function ($record) {
+    ->form([
+        Forms\Components\FileUpload::make('sttp_file')
+            ->label('File STTP')
+            ->required()
+            ->maxSize(102400) // 100MB in KB
+            ->acceptedFileTypes(['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'image/jpeg'])
+            ->helperText('Ukuran file maksimum: 100MB. Format yang diizinkan: PDF, DOCX, XLSX, PPTX, JPEG.')
+            ->enableOpen()
+            ->enableDownload(),
+        Forms\Components\Checkbox::make('agreement')
+            ->label('Dengan ini saya menyatakan bahwa STTP telah diverifikasi dan disetujui untuk diterbitkan.')
+            ->required(),
+    ])
+    ->modalHeading('Verifikasi dan Terbitkan STTP')
+    ->modalSubmitActionLabel('Terbitkan STTP')
+    ->modalCancelActionLabel('Tutup')
+    ->modalWidth('md')
+    ->action(function ($record, array $data) {
+        if (isset($data['sttp_file']) && is_object($data['sttp_file'])) {
+            $filePath = $data['sttp_file']->store('sttp_files');
+            $record->sttp_path = $filePath;
+        }
         $oldStatus = $record->status;
         $record->status = 'Terbit STTP';
         $record->save();
@@ -407,7 +426,7 @@ Tables\Actions\Action::make('verifikasi_terbit_sttp')
             'user_id' => auth()->id(),
             'old_status' => $oldStatus,
             'new_status' => 'Terbit STTP',
-            'catatan' => 'Verifikasi dan Terbit STTP',
+            'catatan' => 'STTP diterbitkan setelah verifikasi',
             'changed_at' => now(),
         ]);
 
@@ -422,7 +441,7 @@ Tables\Actions\Action::make('sttp')
     ->icon('heroicon-o-document')
     ->form([
         Forms\Components\FileUpload::make('sttp_file')
-            ->label('File STTP')
+            ->label('')
             ->required()
             ->maxSize(102400) // 100MB in KB
             ->acceptedFileTypes(['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'image/jpeg'])
