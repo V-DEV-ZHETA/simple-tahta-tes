@@ -420,7 +420,35 @@ Tables\Actions\Action::make('verifikasi_terbit_sttp')
 Tables\Actions\Action::make('sttp')
     ->label('STTP')
     ->icon('heroicon-o-document')
-    ->url(fn ($record) => route('bangkom.downloadSttp', $record))
+    ->form([
+        Forms\Components\FileUpload::make('sttp_file')
+            ->label('File STTP')
+            ->required()
+            ->maxSize(102400) // 100MB in KB
+            ->acceptedFileTypes(['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'image/jpeg'])
+            ->helperText('Ukuran file maksimum: 100MB. Format yang diizinkan: PDF, DOCX, XLSX, PPTX, JPEG.')
+            ->enableOpen()
+            ->enableDownload(),
+    ])
+    ->modalHeading('Upload STTP')
+    ->modalSubmitActionLabel('Simpan')
+    ->modalWidth('md')
+    ->action(function ($record, array $data) {
+        if (isset($data['sttp_file']) && is_object($data['sttp_file'])) {
+            $filePath = $data['sttp_file']->store('sttp_files');
+            $record->sttp_path = $filePath;
+            $record->save();
+        }
+        Notification::make()
+            ->title('File STTP berhasil disimpan')
+            ->success()
+            ->send();
+    })
+    ->modalActions([
+        Tables\Actions\Action::make('close')
+            ->label('Tutup')
+            ->close(),
+    ])
     ->visible(fn ($record) => $record->status == 'Terbit STTP'),
         Tables\Actions\Action::make('histori_status')
             ->label('Histori Status')

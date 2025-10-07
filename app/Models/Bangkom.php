@@ -28,6 +28,7 @@ class Bangkom extends Model
         'telepon_panitia',
         'status',
         'kurikulum',
+        'sttp_path',
     ];
 
     protected $casts = [
