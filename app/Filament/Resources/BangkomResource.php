@@ -321,7 +321,7 @@ Tables\Actions\Action::make('kelengkapan_dokumen')
                     ->multiple()
                     ->image()
                     ->directory('dokumentasi')
-                    ->maxSize(5120) // 5MB per file
+                    ->maxSize(5120) 
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
                     ->helperText('Upload foto dokumentasi kegiatan. Maksimal 5MB per file.')
                     ->columnSpan(12),

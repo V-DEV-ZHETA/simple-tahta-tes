@@ -37,7 +37,7 @@ class Register extends BaseRegister
                             ->required()
                             ->rules(['unique:users,email']),
                         TextInput::make('telepon')
-                            ->label('Nomor Telepon')
+                            ->label('Nomor Telepon/ Wa Aktif')
                             ->required(),
                         TextInput::make('password')
                             ->password()
