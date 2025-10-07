@@ -29,6 +29,7 @@ class Bangkom extends Model
         'status',
         'kurikulum',
         'sttp_path',
+        'dokumentasi',
     ];
 
     protected $casts = [
@@ -36,6 +37,7 @@ class Bangkom extends Model
         'tanggal_berakhir' => 'date',
         'kuota' => 'integer',
         'kurikulum' => 'array',
+        'dokumentasi' => 'array',
     ];
 
 

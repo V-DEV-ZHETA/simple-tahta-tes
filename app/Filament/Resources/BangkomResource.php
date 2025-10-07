@@ -132,8 +132,9 @@ class BangkomResource extends Resource
                             ->required()
                             ->columnSpan(12),
                     ]),
+
             ])->columnSpanFull()
-              ->startOnStep(4)
+              ->startOnStep(5)
               ->extraAttributes(['style' => 'width: 100%; max-width: none;']),
         ];
     }
@@ -314,8 +315,27 @@ Tables\Actions\Action::make('kelengkapan_dokumen')
         Tables\Actions\Action::make('dokumentasi')
             ->label('Dokumentasi')
             ->icon('heroicon-o-camera')
-    ->url(fn ($record) => route('bangkom.dokumentasi', $record))
-    ->visible(fn ($record) => in_array($record->status, ['Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP'])),
+            ->form([
+                Forms\Components\FileUpload::make('dokumentasi')
+                    ->label('Foto Dokumentasi')
+                    ->multiple()
+                    ->image()
+                    ->directory('dokumentasi')
+                    ->maxSize(5120) // 5MB per file
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
+                    ->helperText('Upload foto dokumentasi kegiatan. Maksimal 5MB per file.')
+                    ->columnSpan(12),
+            ])
+            ->action(function ($record, array $data) {
+                $record->update($data);
+                Notification::make()
+                    ->title('Dokumentasi berhasil disimpan')
+                    ->success()
+                    ->send();
+            })
+            ->modalHeading('Upload Dokumentasi')
+            ->modalSubmitActionLabel('Simpan')
+            ->visible(fn ($record) => in_array($record->status, ['Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP'])),
         Tables\Actions\Action::make('peserta')
             ->label('Peserta')
             ->icon('heroicon-o-users')
@@ -537,6 +557,7 @@ Tables\Actions\Action::make('sttp')
             'create' => Pages\CreateBangkom::route('/create'),
             'edit' => Pages\EditBangkom::route('/{record}/edit'),
             'view' => Pages\ViewBangkom::route('/{record}'),
+
         ];
     }
 }

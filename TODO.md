@@ -1,10 +1,6 @@
-# TODO: Remove Filament Shield Plugin
+# TODO: Implement Standalone Dokumentasi for Bangkom
 
-## Steps to Complete
-- [x] Remove "bezhansalleh/filament-shield" from composer.json
-- [x] Remove FilamentShieldPlugin::make() from app/Providers/Filament/AdminPanelProvider.php
-- [x] Delete config/filament-shield.php
-- [x] Delete app/Policies/RolePolicy.php
-- [x] Delete check_super_admin_permissions.php
-- [x] Run composer update to remove the package
-- [x] Clear application cache if needed
+## Tasks
+- [x] Create DokumentasiBangkom.php page in app/Filament/Resources/BangkomResource/Pages/
+- [x] Update BangkomResource.php: remove Dokumentasi step from wizard, adjust startOnStep to 5, change action to modal form
+- [x] Fix array to string conversion error by using modal action instead of page
