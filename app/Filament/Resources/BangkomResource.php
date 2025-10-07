@@ -210,10 +210,11 @@ Tables\Columns\TextColumn::make('jenisPelatihan.name')
             ])
 ->actions([
         Tables\Actions\ActionGroup::make([
-        Tables\Actions\Action::make('cetak_permohonan')
-            ->label('Cetak permohonan')
-            ->icon('heroicon-o-printer')
-            ->url(fn ($record) => route('bangkom.downloadDocx', $record)),
+Tables\Actions\Action::make('cetak_permohonan')
+    ->label('Cetak permohonan')
+    ->icon('heroicon-o-printer')
+    ->url(fn ($record) => route('bangkom.downloadDocx', $record))
+    ->visible(fn ($record) => in_array($record->status, ['Draft', 'Menunggu Verifikasi I'])),
 Tables\Actions\Action::make('dokumen_permohonan')
     ->label('Dokumen Permohonan')
     ->icon('heroicon-o-document-text')
@@ -245,7 +246,8 @@ Tables\Actions\Action::make('dokumen_permohonan')
         Tables\Actions\Action::make('close')
             ->label('Tutup')
             ->close(),
-    ]),
+    ])
+    ->visible(fn ($record) => in_array($record->status, ['Draft', 'Menunggu Verifikasi I', 'Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP'])),
 Tables\Actions\Action::make('kelengkapan_dokumen')
     ->label('Kelengkapan Dokumen')
     ->icon('heroicon-o-user')
@@ -305,15 +307,18 @@ Tables\Actions\Action::make('kelengkapan_dokumen')
             ->title('Kelengkapan dokumen berhasil disimpan')
             ->success()
             ->send();
-    }),
+    })
+    ->visible(fn ($record) => in_array($record->status, ['Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP'])),
         Tables\Actions\Action::make('dokumentasi')
             ->label('Dokumentasi')
             ->icon('heroicon-o-camera')
-            ->url(fn ($record) => route('bangkom.dokumentasi', $record)),
+    ->url(fn ($record) => route('bangkom.dokumentasi', $record))
+    ->visible(fn ($record) => in_array($record->status, ['Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP'])),
         Tables\Actions\Action::make('peserta')
             ->label('Peserta')
             ->icon('heroicon-o-users')
-            ->url(fn ($record) => route('bangkom.peserta', $record)),
+    ->url(fn ($record) => route('bangkom.peserta', $record))
+    ->visible(fn ($record) => in_array($record->status, ['Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP'])),
         Tables\Actions\Action::make('ubah_status')
             ->label('Ubah status')
             ->icon('heroicon-o-pencil-square')
@@ -352,7 +357,8 @@ Forms\Components\Select::make('status')
                     ->title('Status berhasil diubah')
                     ->success()
                     ->send();
-            }),
+            })
+    ->visible(fn ($record) => in_array($record->status, ['Draft', 'Menunggu Verifikasi I', 'Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP'])),
 Tables\Actions\Action::make('ajukan_permohonan')
     ->label('Dokumen Permohonan')
     ->icon('heroicon-o-paper-airplane')
@@ -384,7 +390,38 @@ Tables\Actions\Action::make('ajukan_permohonan')
             ->success()
             ->send();
     })
-    ->visible(fn ($record) => in_array($record->status, ['Draft', 'Menunggu Verifikasi', 'Submitted'])),
+    ->visible(fn ($record) => !in_array($record->status, ['Draft', 'Menunggu Verifikasi I']) && in_array($record->status, ['Draft', 'Menunggu Verifikasi', 'Submitted'])),
+Tables\Actions\Action::make('verifikasi_terbit_sttp')
+    ->label('Verifikasi dan Terbitkan STTP')
+    ->icon('heroicon-o-check-circle')
+    ->requiresConfirmation()
+    ->modalHeading('Konfirmasi Verifikasi dan Terbit STTP')
+    ->modalDescription('Apakah Anda yakin ingin memverifikasi dan menerbitkan STTP untuk kegiatan ini?')
+    ->modalSubmitActionLabel('Ya, Terbitkan STTP')
+    ->action(function ($record) {
+        $oldStatus = $record->status;
+        $record->status = 'Terbit STTP';
+        $record->save();
+
+        $record->statusHistories()->create([
+            'user_id' => auth()->id(),
+            'old_status' => $oldStatus,
+            'new_status' => 'Terbit STTP',
+            'catatan' => 'Verifikasi dan Terbit STTP',
+            'changed_at' => now(),
+        ]);
+
+        Notification::make()
+            ->title('STTP berhasil diterbitkan')
+            ->success()
+            ->send();
+    })
+    ->visible(fn ($record) => $record->status == 'Menunggu Verifikasi II'),
+Tables\Actions\Action::make('sttp')
+    ->label('STTP')
+    ->icon('heroicon-o-document')
+    ->url(fn ($record) => route('bangkom.downloadSttp', $record))
+    ->visible(fn ($record) => $record->status == 'Terbit STTP'),
         Tables\Actions\Action::make('histori_status')
             ->label('Histori Status')
             ->icon('heroicon-o-clock')
@@ -418,21 +455,26 @@ Tables\Actions\Action::make('ajukan_permohonan')
                 $content .= '</table>';
                 return new HtmlString($content);
             })
-            ->modal(),
-        Tables\Actions\ViewAction::make(),
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+            ->modal()
+            ->visible(fn ($record) => in_array($record->status, ['Draft', 'Menunggu Verifikasi I', 'Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP'])),
+        Tables\Actions\ViewAction::make()
+            ->visible(fn ($record) => in_array($record->status, ['Draft', 'Menunggu Verifikasi I', 'Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP'])),
+        Tables\Actions\EditAction::make()
+            ->visible(fn ($record) => in_array($record->status, ['Draft', 'Menunggu Verifikasi I', 'Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP'])),
+        Tables\Actions\DeleteAction::make()
+            ->visible(fn ($record) => in_array($record->status, ['Draft', 'Menunggu Verifikasi I', 'Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP'])),
         Tables\Actions\Action::make('restore')
             ->label('Restore')
             ->icon('heroicon-o-arrow-uturn-left')
             ->color('success')
             ->requiresConfirmation()
-            ->visible(fn ($record) => $record->trashed())
+            ->visible(fn ($record) => in_array($record->status, ['Draft', 'Menunggu Verifikasi I', 'Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP']))
             ->action(fn ($record) => $record->restore()),
         Tables\Actions\DeleteAction::make('force_delete')
             ->label('Force delete')
             ->color('danger')
             ->requiresConfirmation()
+            ->visible(fn ($record) => in_array($record->status, ['Draft', 'Menunggu Verifikasi I', 'Pengelolaan', 'Menunggu Verifikasi II', 'Terbit STTP']))
             ->action(fn ($record) => $record->forceDelete()),
     ]),
 ])
