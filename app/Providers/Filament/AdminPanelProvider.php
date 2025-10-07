@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\Register;
 use BezhanSalleh\FilamentShield\Resources\RoleResource;
 use Filament\Facades\Filament;
@@ -31,8 +32,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
-            ->registration(Register::class) 
+            ->login(Login::class)
+            ->registration(Register::class)
             ->maxContentWidth('10xl')
             ->renderhook(PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABLE_BEFORE, fn(): View => view('components.total'))
             ->sidebarWidth(300)

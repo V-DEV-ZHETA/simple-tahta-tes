@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(\App\Models\Instansi::class);
     }
+
+    protected static function booted()
+    {
+        static::observe(\App\Observers\UserObserver::class);
+    }
 }

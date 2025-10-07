@@ -58,7 +58,8 @@ class UserResource extends Resource
                     ->label('Roles')
                     ->multiple()
                     ->relationship('roles', 'name')
-                    ->preload(),
+                    ->default(['Pelaksana'])
+                    ->preload(), 
             ]);
     }
 
