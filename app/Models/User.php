@@ -52,4 +52,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function instansi()
+    {
+        return $this->belongsTo(\App\Models\Instansi::class);
+    }
 }
