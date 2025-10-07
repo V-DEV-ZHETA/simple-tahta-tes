@@ -1,15 +1,16 @@
 <x-filament-panels::page>
-    {{ $this->form }}
+    <form wire:submit="save">
+        {{ $this->form }}
 
-    <x-filament::section>
-        <x-slot name="footer">
+        <div class="flex justify-end gap-x-3 mt-6">
             <x-filament::button
                 type="submit"
-                form="data"
-                class="fi-btn-fi-primary"
+                size="lg"
+                color="success"
+                icon="heroicon-o-check-circle"
             >
-                Simpan
+                Save Changes
             </x-filament::button>
-        </x-slot>
-    </x-filament::section>
+        </div>
+    </form>
 </x-filament-panels::page>

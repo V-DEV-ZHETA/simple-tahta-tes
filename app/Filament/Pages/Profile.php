@@ -13,6 +13,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Get;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\FileUpload;
 
 class Profile extends Page implements HasForms
 {
@@ -34,6 +35,7 @@ class Profile extends Page implements HasForms
     {
         $user = Auth::user();
         $this->form->fill([
+            'avatar' => $user->avatar ?? null,
             'name' => $user->name,
             'email' => $user->email,
             'username' => $user->username ?? '',
@@ -45,55 +47,101 @@ class Profile extends Page implements HasForms
     {
         return $form
             ->schema([
-                Section::make('General')
+                Section::make('Avatar')
+                    ->description('Upload foto profil Anda')
                     ->schema([
-                        Grid::make(1)
+                        FileUpload::make('avatar')
+                            ->label('')
+                            ->image()
+                            ->imageEditor()
+                            ->directory('avatars')
+                            ->visibility('public')
+                            ->maxSize(2048)
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/gif'])
+                            ->helperText('Drag & Drop your files or Browse. Max size: 2MB')
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->compact(),
+
+                Section::make('General')
+                    ->description('Informasi umum akun Anda')
+                    ->schema([
+                        Grid::make(2)
                             ->schema([
                                 TextInput::make('name')
                                     ->label('Nama')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-user')
+                                    ->placeholder('Masukkan nama lengkap'),
+                                    
                                 TextInput::make('email')
                                     ->label('Email')
                                     ->email()
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-envelope')
+                                    ->placeholder('nama@email.com'),
+                                    
                                 TextInput::make('username')
                                     ->label('Username')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-at-symbol')
+                                    ->placeholder('username'),
+                                    
                                 TextInput::make('telepon')
-                                    ->label('Telepon')
+                                    ->label('Phone')
                                     ->tel()
-                                    ->maxLength(20),
-                            ])
-                            ->columns(1),
-                    ]),
+                                    ->maxLength(20)
+                                    ->prefixIcon('heroicon-o-phone')
+                                    ->placeholder('08xxxxxxxxxx'),
+                            ]),
+                    ])
+                    ->collapsible(),
+
                 Section::make('Password')
+                    ->description('Ubah password akun Anda. Leave empty if you don\'t wanna change password')
                     ->schema([
                         Grid::make(1)
                             ->schema([
                                 TextInput::make('current_password')
                                     ->label('Old Password')
                                     ->password()
-                                    ->required()
+                                    ->revealable()
                                     ->maxLength(255)
-                                    ->dehydrated(false),
+                                    ->dehydrated(false)
+                                    ->prefixIcon('heroicon-o-lock-closed')
+                                    ->placeholder('Masukkan password lama')
+                                    ->helperText('Wajib diisi jika ingin mengubah password')
+                                    ->requiredWith('password'),
+                                    
                                 TextInput::make('password')
                                     ->label('New Password')
                                     ->password()
+                                    ->revealable()
                                     ->maxLength(255)
                                     ->dehydrated(fn ($state) => filled($state))
-                                    ->rule('confirmed'),
+                                    ->rule('confirmed')
+                                    ->prefixIcon('heroicon-o-key')
+                                    ->placeholder('Masukkan password baru')
+                                    ->minLength(8)
+                                    ->helperText('Minimal 8 karakter'),
+                                    
                                 TextInput::make('password_confirmation')
                                     ->label('New Password (Confirm)')
                                     ->password()
+                                    ->revealable()
                                     ->same('password')
                                     ->visible(fn (Get $get): bool => filled($get('password')))
-                                    ->dehydrated(fn ($state) => filled($state)),
-                            ])
-                            ->columns(1),
-                    ]),
+                                    ->dehydrated(fn ($state) => filled($state))
+                                    ->prefixIcon('heroicon-o-key')
+                                    ->placeholder('Konfirmasi password baru'),
+                            ]),
+                    ])
+                    ->collapsible()
+                    ->collapsed(),
             ])
             ->statePath('data');
     }
@@ -104,32 +152,63 @@ class Profile extends Page implements HasForms
 
         $user = Auth::user();
 
-        if (!Hash::check($data['current_password'], $user->password)) {
-            Notification::make()
-                ->title('Old Password salah')
-                ->danger()
-                ->send();
-            return;
+        // Cek apakah user ingin mengubah password
+        $currentPassword = $data['current_password'] ?? null;
+        $newPassword = $data['password'] ?? null;
+        $changePassword = filled($currentPassword) || filled($newPassword);
+
+        if ($changePassword) {
+            if (!filled($currentPassword)) {
+                Notification::make()
+                    ->title('Old Password harus diisi')
+                    ->body('Silakan masukkan password lama Anda untuk mengubah password.')
+                    ->danger()
+                    ->duration(5000)
+                    ->send();
+                return;
+            }
+
+            if (!Hash::check($currentPassword, $user->password)) {
+                Notification::make()
+                    ->title('Old Password salah')
+                    ->body('Password lama yang Anda masukkan tidak sesuai.')
+                    ->danger()
+                    ->duration(5000)
+                    ->send();
+                return;
+            }
         }
 
-        $user->update([
+        // Update data user
+        $updateData = [
             'name' => $data['name'],
             'email' => $data['email'],
             'username' => $data['username'],
             'telepon' => $data['telepon'],
-        ]);
+        ];
 
-        if (filled($data['password'])) {
+        // Update avatar jika ada
+        if (isset($data['avatar'])) {
+            $updateData['avatar'] = $data['avatar'];
+        }
+
+        $user->update($updateData);
+
+        // Update password jika diisi
+        if ($changePassword && filled($newPassword)) {
             $user->update([
-                'password' => Hash::make($data['password']),
+                'password' => Hash::make($newPassword),
             ]);
         }
 
         Notification::make()
             ->title('Profil berhasil diperbarui')
+            ->body('Data profil Anda telah berhasil disimpan.')
             ->success()
+            ->duration(3000)
             ->send();
 
-        $this->form->fill();
+        // Refresh form dengan data terbaru
+        $this->mount();
     }
 }

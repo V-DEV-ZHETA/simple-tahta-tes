@@ -11,6 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class UserResource extends Resource
 {
@@ -92,13 +93,20 @@ class UserResource extends Resource
                     ->label('Email')
                     ->searchable(),
 
-                Tables\Columns\BadgeColumn::make('verified_at')
+                Tables\Columns\TextColumn::make('status_verifikasi')
                     ->label('Status')
-                    ->formatStateUsing(function ($state) {
-                        return $state ? 'Terverifikasi' : 'Belum Terverifikasi';
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        return $record->verified_at ? 'Terverifikasi' : 'Belum Terverifikasi';
                     })
-                    ->color(fn ($state) => $state ? 'success' : 'danger')
-                    ->description(fn ($state) => $state ? "{$state->format('d M Y H:i:s')}" : null),
+                    ->color(function ($record) {
+                        return $record->verified_at ? 'success' : 'danger';
+                    })
+                    ->description(function ($record) {
+                        return $record->verified_at 
+                            ? $record->verified_at->format('d M Y H:i:s') 
+                            : null;
+                    }),
 
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Updated At')
@@ -109,6 +117,38 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('impersonate')
+                    ->label('')
+                    ->icon('fontisto-user-secret')
+                    ->iconSize('lg')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Login sebagai User ini?')
+                    ->modalDescription(fn ($record) => "Anda akan login sebagai {$record->name}. Anda dapat kembali ke akun admin dengan mengklik tombol 'Leave Impersonation'.")
+                    ->modalSubmitActionLabel('Ya, Login')
+                    ->action(function ($record) {
+                        // Simpan ID admin yang sedang login
+                        session()->put('impersonate', [
+                            'admin_id' => Auth::id(),
+                            'admin_name' => Auth::user()->name,
+                        ]);
+                        
+                        // Login sebagai user target
+                        Auth::loginUsingId($record->id);
+                        
+                        Notification::make()
+                            ->title('Berhasil login sebagai ' . $record->name)
+                            ->success()
+                            ->send();
+                        
+                        // Redirect ke dashboard
+                        return redirect('/bangkom');
+                    })
+                    ->visible(function ($record) {
+                        // Hanya tampilkan jika user sudah terverifikasi dan bukan diri sendiri
+                        return $record->verified_at && Auth::id() !== $record->id;
+                    }),
+
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('verifikasi')
                         ->label('Verifikasi')
