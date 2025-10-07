@@ -16,6 +16,11 @@ return [
 
     'tenant_model' => null,
 
+    'models' => [
+        'role' => 'App\\Models\\Role',
+        'permission' => 'App\\Models\\Permission',
+    ],
+
     'auth_provider_model' => [
         'fqcn' => 'App\\Models\\User',
     ],

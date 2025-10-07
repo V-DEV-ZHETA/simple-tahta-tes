@@ -26,6 +26,7 @@ class User extends Authenticatable
         'instansi_id',
         'satuan_kerja',
         'password',
+        'verified_at',
     ];
 
     /**
@@ -47,6 +48,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

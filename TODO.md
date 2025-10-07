@@ -1,6 +1,8 @@
-# TODO: Implement Standalone Dokumentasi for Bangkom
+# TODO: Kostumisasi UserResource
 
-## Tasks
-- [x] Create DokumentasiBangkom.php page in app/Filament/Resources/BangkomResource/Pages/
-- [x] Update BangkomResource.php: remove Dokumentasi step from wizard, adjust startOnStep to 5, change action to modal form
-- [x] Fix array to string conversion error by using modal action instead of page
+- [x] Buat migration untuk menambahkan verified_at ke users table
+- [x] Update User model: tambahkan verified_at ke fillable dan casts
+- [x] Buat UserResource.php dengan form, columns, dan actions
+- [x] Buat pages: ListUsers, CreateUser, EditUser, ViewUser
+- [x] Jalankan migration
+- [ ] Test resource

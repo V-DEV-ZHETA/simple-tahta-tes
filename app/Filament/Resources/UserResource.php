@@ -3,22 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\ViewAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Select;
+use Illuminate\Support\Facades\Hash;
+use Filament\Notifications\Notification;
 
 class UserResource extends Resource
 {
@@ -28,53 +20,45 @@ class UserResource extends Resource
 
     protected static ?string $navigationLabel = 'Users';
 
-    protected static ?string $navigationGroup = 'Pengaturan';
-
-    protected static ?int $navigationSort = 2;
-
-    protected static bool $shouldRegisterNavigation = true;
-
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Grid::make(1)
-                    ->schema([
-                        TextInput::make('name')
-                            ->label('Nama')
-                            ->required()
-                            ->maxLength(255),
-                        TextInput::make('email')
-                            ->label('Email')
-                            ->email()
-                            ->required()
-                            ->maxLength(255),
-                        TextInput::make('password')
-                            ->label('Password Saat Ini')
-                            ->password()
-                            ->required(fn (string $operation): bool => $operation === 'edit')
-                            ->visible(fn (string $operation): bool => $operation === 'edit')
-                            ->maxLength(255)
-                            ->dehydrated(fn ($state) => filled($state)),
-                        TextInput::make('new_password')
-                            ->label('Password Baru')
-                            ->password()
-                            ->visible(fn (string $operation): bool => $operation === 'edit')
-                            ->maxLength(255)
-                            ->dehydrated(fn ($state) => filled($state)),
-                        TextInput::make('password_confirmation')
-                            ->label('Konfirmasi Password Baru')
-                            ->password()
-                            ->same('new_password')
-                            ->visible(fn (string $operation): bool => $operation === 'edit')
-                            ->dehydrated(fn ($state) => filled($state)),
-                        Select::make('roles.name')
-                            ->label('Role')
-                            ->multiple()
-                            ->relationship('roles', 'name')
-                            ->searchable()
-                            ->preload(),
-                    ]),
+                Forms\Components\TextInput::make('name')
+                    ->label('Name')
+                    ->required()
+                    ->maxLength(255),
+
+                Forms\Components\TextInput::make('email')
+                    ->label('Email')
+                    ->email()
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->maxLength(255),
+
+                Forms\Components\TextInput::make('username')
+                    ->label('Username')
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->maxLength(255),
+
+                Forms\Components\TextInput::make('telepon')
+                    ->label('Phone')
+                    ->tel()
+                    ->maxLength(255),
+
+                Forms\Components\TextInput::make('password')
+                    ->label('Password')
+                    ->password()
+                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                    ->dehydrated(fn ($state) => filled($state))
+                    ->required(fn (string $context): bool => $context === 'create'),
+
+                Forms\Components\Select::make('roles')
+                    ->label('Roles')
+                    ->multiple()
+                    ->relationship('roles', 'name')
+                    ->preload(),
             ]);
     }
 
@@ -82,24 +66,39 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('No')
-                    ->sortable()
-                    ->toggleable(false),
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Nama')
-                    ->sortable()
+                    ->label('Name')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('username')
+                    ->label('Username')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('telepon')
+                    ->label('Phone')
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Roles')
+                    ->badge()
+                    ->color('primary'),
+
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email')
-                    ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('roles.name')
-                    ->label('Role')
-                    ->badge()
-                    ->separator(', '),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Dibuat')
+
+                Tables\Columns\BadgeColumn::make('verified_at')
+                    ->label('Status')
+                    ->formatStateUsing(function ($state) {
+                        return $state ? 'Terverifikasi' : 'Belum Terverifikasi';
+                    })
+                    ->color(fn ($state) => $state ? 'success' : 'danger')
+                    ->description(fn ($state) => $state ? "{$state->format('d M Y H:i:s')}" : null),
+
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Updated At')
                     ->dateTime()
                     ->sortable(),
             ])
@@ -107,24 +106,49 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
-                ActionGroup::make([
-                    ViewAction::make(),
-                    EditAction::make(),
-                    DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('verifikasi')
+                        ->label('Verifikasi')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Verifikasi User')
+                        ->modalDescription('Apakah Anda yakin ingin memverifikasi user ini?')
+                        ->modalSubmitActionLabel('Ya, Verifikasi')
+                        ->action(function ($record) {
+                            $record->update(['verified_at' => now()]);
+                            Notification::make()
+                                ->title('User berhasil diverifikasi')
+                                ->success()
+                                ->send();
+                        })
+                        ->visible(fn ($record) => !$record->verified_at),
+
+                    Tables\Actions\Action::make('batalkan_verifikasi')
+                        ->label('Batalkan Verifikasi')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Batalkan Verifikasi User')
+                        ->modalDescription('Apakah Anda yakin ingin membatalkan verifikasi user ini?')
+                        ->modalSubmitActionLabel('Ya, Batalkan')
+                        ->action(function ($record) {
+                            $record->update(['verified_at' => null]);
+                            Notification::make()
+                                ->title('Verifikasi user berhasil dibatalkan')
+                                ->success()
+                                ->send();
+                        })
+                        ->visible(fn ($record) => $record->verified_at),
+
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
                 ]),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

@@ -28,6 +28,12 @@ class Bangkom extends Model
         'telepon_panitia',
         'status',
         'kurikulum',
+        'file_permohonan_path',
+        'bahan_tayang_path',
+        'pelaporan_path',
+        'absensi_path',
+        'surat_ijin_path',
+        'contoh_spesimen_path',
         'sttp_path',
         'dokumentasi',
     ];
