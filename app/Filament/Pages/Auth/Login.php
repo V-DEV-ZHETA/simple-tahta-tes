@@ -15,9 +15,8 @@ class Login extends BaseLogin
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('email')
-                    ->label(__('filament-panels::pages/auth/login.form.email.label'))
-                    ->email()
+                Forms\Components\TextInput::make('username')
+                    ->label('Username')
                     ->required()
                     ->autocomplete()
                     ->autofocus(),
@@ -28,10 +27,45 @@ class Login extends BaseLogin
                     ->extraAttributes(['class' => 'text-red-500 text-sm']),
 
                 Forms\Components\TextInput::make('password')
-                    ->label(__('filament-panels::pages/auth/login.form.password.label'))
+                    ->label('Password')
                     ->password()
                     ->required(),
+
+                Forms\Components\Select::make('tahun')
+                    ->label('Tahun')
+                    ->options($this->getTahunOptions())
+                    ->default(date('Y'))
+                    ->required()
+                    ->native(false)
+                    ->searchable(),
+
+                Forms\Components\Checkbox::make('remember')
+                    ->label('Ingat Saya'),
             ]);
+    }
+
+    protected function getTahunOptions(): array
+    {
+        $currentYear = date('Y');
+        $years = [];
+        
+        // Generate tahun dari 5 tahun lalu sampai 5 tahun kedepan
+        for ($year = $currentYear - 0; $year <= $currentYear + 1; $year++) {
+            $years[$year] = $year;
+        }
+        
+        return $years;
+    }
+
+    protected function getCredentialsFromFormData(array $data): array
+    {
+        // Simpan tahun ke session untuk digunakan di aplikasi
+        session(['selected_year' => $data['tahun']]);
+        
+        return [
+            'username' => $data['username'],
+            'password' => $data['password'],
+        ];
     }
 
     public function authenticate(): ?\Filament\Http\Responses\Auth\Contracts\LoginResponse

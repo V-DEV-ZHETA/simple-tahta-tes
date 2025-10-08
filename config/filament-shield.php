@@ -8,7 +8,7 @@ return [
         'navigation_badge' => true,
         'navigation_group' => true,
         'sub_navigation_position' => null,
-        'is_globally_searchable' => false,
+        'is_globally_searchable' => true,
         'show_model_path' => true,
         'is_scoped_to_tenant' => true,
         'cluster' => null,
@@ -85,9 +85,9 @@ return [
     ],
 
     'discovery' => [
-        'discover_all_resources' => false,
-        'discover_all_widgets' => false,
-        'discover_all_pages' => false,
+        'discover_all_resources' => true,
+        'discover_all_widgets' => true,
+        'discover_all_pages' => true,
     ],
 
     'register_role_policy' => [
