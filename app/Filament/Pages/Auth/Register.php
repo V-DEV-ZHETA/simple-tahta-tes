@@ -7,7 +7,12 @@ use App\Models\Instansi;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Auth\Register as BaseRegister;
-use Illuminate\Support\Facades\DB;
+use Filament\Notifications\Notification;
+use Illuminate\Auth\Events\Registered;
+use Filament\Facades\Filament;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Filament\Http\Responses\Auth\Contracts\RegistrationResponse;
 
 class Register extends BaseRegister
 {
@@ -53,15 +58,45 @@ class Register extends BaseRegister
         ];
     }
 
-    protected function create(array $data): \Illuminate\Contracts\Auth\Authenticatable
+    public function register(): ?RegistrationResponse
     {
-        $user = parent::create($data);
+        $data = $this->form->getState();
+        
+        // Hash password
+        $data['password'] = Hash::make($data['password']);
+        
+        // Hapus password_confirmation
+        unset($data['password_confirmation']);
 
+        // Buat user
+        $user = User::create($data);
+        
+        // Assign role
         try {
             $user->assignRole('Pelaksana');
         } catch (\Exception $e) {
+            // Handle error
         }
-        return $user;
+
+        event(new Registered($user));
+        
+        // JANGAN login user - langsung logout semua
+        Auth::guard(Filament::getAuthGuard())->logout();
+        session()->invalidate();
+        session()->regenerateToken();
+
+        // Notifikasi
+        Notification::make()
+            ->success()
+            ->title('Registrasi Berhasil')
+            ->body('Akun Anda berhasil dibuat. Silakan login dengan username dan password Anda.')
+            ->send();
+
+        // Return null supaya Filament tidak proses auto-login
+        // Lalu redirect manual
+        $this->redirect(Filament::getLoginUrl());
+        
+        return null;
     }
 
     protected function getCreateFormAction(): \Filament\Actions\Action
