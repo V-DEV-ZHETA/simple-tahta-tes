@@ -191,6 +191,14 @@ class UserResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
+            ])
+            ->filters([
+                Tables\Filters\Filter::make('verified')
+                    ->label('Terverifikasi')
+                    ->query(fn ($query) => $query->whereNotNull('verified_at')),
+                Tables\Filters\Filter::make('unverified')
+                    ->label('Belum Terverifikasi')
+                    ->query(fn ($query) => $query->whereNull('verified_at')),
             ]);
     }
 

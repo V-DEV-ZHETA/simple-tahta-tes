@@ -152,7 +152,6 @@ class Profile extends Page implements HasForms
 
         $user = Auth::user();
 
-        // Cek apakah user ingin mengubah password
         $currentPassword = $data['current_password'] ?? null;
         $newPassword = $data['password'] ?? null;
         $changePassword = filled($currentPassword) || filled($newPassword);
@@ -179,7 +178,6 @@ class Profile extends Page implements HasForms
             }
         }
 
-        // Update data user
         $updateData = [
             'name' => $data['name'],
             'email' => $data['email'],
@@ -187,14 +185,12 @@ class Profile extends Page implements HasForms
             'telepon' => $data['telepon'],
         ];
 
-        // Update avatar jika ada
         if (isset($data['avatar'])) {
             $updateData['avatar'] = $data['avatar'];
         }
 
         $user->update($updateData);
 
-        // Update password jika diisi
         if ($changePassword && filled($newPassword)) {
             $user->update([
                 'password' => Hash::make($newPassword),
@@ -208,7 +204,6 @@ class Profile extends Page implements HasForms
             ->duration(3000)
             ->send();
 
-        // Refresh form dengan data terbaru
         $this->mount();
     }
 }
