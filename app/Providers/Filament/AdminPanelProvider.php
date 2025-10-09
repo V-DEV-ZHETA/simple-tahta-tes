@@ -78,10 +78,12 @@ class AdminPanelProvider extends PanelProvider
 
     public function boot(): void
     {
-        // Register render hook untuk year selector di topbar
+        // Remove global search render hooks if any (none found in this file)
+
+        // Register render hook untuk year selector di sebelah kiri user menu (topbar.user-menu.before)
         FilamentView::registerRenderHook(
-            PanelsRenderHook::TOPBAR_END,
-            fn (): View => view('filament.hooks.year-selector'),
+            'topbar.user-menu.before',
+            fn (): View => view('filament.hooks.year-selector')
         );
     }
 }

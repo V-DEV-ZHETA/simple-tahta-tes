@@ -161,13 +161,16 @@
         >
             {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::GLOBAL_SEARCH_BEFORE) }}
 
-            @if (filament()->isGlobalSearchEnabled())
+            {{-- Global search removed as requested --}}
+            {{-- @if (filament()->isGlobalSearchEnabled())
                 @livewire(Filament\Livewire\GlobalSearch::class)
-            @endif
+            @endif --}}
 
             {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER) }}
 
             @if (filament()->auth()->check())
+                {{ \Filament\Support\Facades\FilamentView::renderHook('topbar.user-menu.before') }}
+
                 @if (filament()->hasDatabaseNotifications())
                     @livewire(Filament\Livewire\DatabaseNotifications::class, [
                         'lazy' => filament()->hasLazyLoadedDatabaseNotifications(),
