@@ -25,61 +25,50 @@ class ViewBangkom extends ViewRecord
 {
     protected static string $resource = BangkomResource::class;
 
-    /**
-     * @return array<class-string<RelationManager> | RelationGroup | RelationManagerConfiguration>
-     */
-    // public function getRelationManagers(): array
-    // {
-    //     return [
-    //         PesertaRelationManager::class,
-    //     ];
-    // }
-
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Section::make('Kegiatan')
                     ->schema([
-                        TextInput::make('nomor_jadwal')
+                        TextInput::make('kode_kegiatan')
                             ->label('Nomor Jadwal/Kegiatan')
                             ->disabled()
-                            ->dehydrated(),
-
-                        Select::make('pengelola')
-                            ->label('Pengelola')
-                            ->disabled()
-                            ->dehydrated(),
-
-                        TextInput::make('instansi_pelaksana')
+                            ->default(fn ($record) => $record->kode_kegiatan ?? '-'),
+                        Select::make('instansi_id')
                             ->label('Instansi Pelaksana')
+                            ->options(\App\Models\Instansi::all()->pluck('name', 'id')->toArray())
                             ->disabled()
-                            ->dehydrated(),
+                            ->default(fn ($record) => $record->instansi_id),
 
                         TextInput::make('unit_kerja')
                             ->label('Unit Kerja / Perangkat Daerah Pelaksana')
                             ->disabled()
-                            ->dehydrated(),
+                            ->default(fn ($record) => $record->unit_kerja ?? '-'),
 
                         TextInput::make('nama_kegiatan')
                             ->label('Nama Kegiatan')
                             ->disabled()
-                            ->dehydrated(),
+                            ->default(fn ($record) => $record->nama_kegiatan ?? '-'),
 
-                        Select::make('jenis_pelatihan')
+                        Select::make('jenis_pelatihan_id')
                             ->label('Jenis Pelatihan')
+                            ->options(\App\Models\JenisPelatihan::all()->pluck('name', 'id')->toArray())
                             ->disabled()
-                            ->dehydrated(),
+                            ->default(fn ($record) => $record->jenis_pelatihan_id),
 
-                        Select::make('bentuk_pelatihan')
+                        Select::make('bentuk_pelatihan_id')
                             ->label('Bentuk Pelatihan')
+                            ->options(\App\Models\BentukPelatihan::all()->pluck('bentuk', 'id')->toArray())
                             ->disabled()
-                            ->dehydrated(),
+                            ->default(fn ($record) => $record->bentuk_pelatihan_id),
 
-                        Select::make('sasaran')
+                        Select::make('sasaran_id')
                             ->label('Sasaran')
+                            ->options(\App\Models\Sasaran::all()->pluck('name', 'id')->toArray())
                             ->disabled()
-                            ->dehydrated(),
+                            ->default(fn ($record) => $record->sasaran_id),
+
                     ])
                     ->collapsible()->InLineLabel(),
 
@@ -180,10 +169,6 @@ class ViewBangkom extends ViewRecord
             ])
             ->columns(1);
     }
-
-    /**
-     * @return array<Action | ActionGroup>
-     */
 
     protected function getSavedNotification(): ?Notification
     {
