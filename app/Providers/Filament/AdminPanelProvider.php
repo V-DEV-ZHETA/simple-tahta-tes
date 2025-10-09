@@ -12,6 +12,7 @@ use Filament\Widgets;
 use Filament\Pages;
 use Filament\View\PanelsRenderHook;
 use Filament\Support\Colors\Color;
+use Filament\Support\Facades\FilamentView;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -36,7 +37,10 @@ class AdminPanelProvider extends PanelProvider
             ->login(Login::class)
             ->registration(Register::class)
             ->maxContentWidth('10xl')
-            ->renderhook(PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABLE_BEFORE, fn(): View => view('components.total'))
+            ->renderHook(
+                PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABLE_BEFORE, 
+                fn(): View => view('components.total')
+            )
             ->sidebarWidth(300)
             ->colors([
                 'primary' => Color::Blue,
@@ -49,7 +53,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
-                // Widgets\FilamentInfoWidget::class,
             ])
             ->resources([
                 RoleResource::class,
@@ -71,5 +74,14 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    public function boot(): void
+    {
+        // Register render hook untuk year selector di topbar
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::TOPBAR_END,
+            fn (): View => view('filament.hooks.year-selector'),
+        );
     }
 }
