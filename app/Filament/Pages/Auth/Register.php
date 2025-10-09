@@ -62,38 +62,30 @@ class Register extends BaseRegister
     {
         $data = $this->form->getState();
         
-        // Hash password
         $data['password'] = Hash::make($data['password']);
         
-        // Hapus password_confirmation
         unset($data['password_confirmation']);
 
-        // Buat user
         $user = User::create($data);
         
-        // Assign role
         try {
+            $user->assignRole('User');
             $user->assignRole('Pelaksana');
         } catch (\Exception $e) {
-            // Handle error
         }
 
         event(new Registered($user));
         
-        // JANGAN login user - langsung logout semua
         Auth::guard(Filament::getAuthGuard())->logout();
         session()->invalidate();
         session()->regenerateToken();
 
-        // Notifikasi
         Notification::make()
             ->success()
             ->title('Registrasi Berhasil')
             ->body('Akun Anda berhasil dibuat. Silakan login dengan username dan password Anda.')
             ->send();
 
-        // Return null supaya Filament tidak proses auto-login
-        // Lalu redirect manual
         $this->redirect(Filament::getLoginUrl());
         
         return null;
