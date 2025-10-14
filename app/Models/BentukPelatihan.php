@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BentukPelatihan extends Model
 {
-    protected $table = 'bentuk_pelatihan';
+    protected $table = 'bentuk_pelatihans';
 
     protected $fillable = ['jalur', 'bentuk', 'deskripsi'];
 
