@@ -25,7 +25,7 @@ return new class extends Migration
     {
         Schema::table('bentuk_pelatihans', function (Blueprint $table) {
             if (!Schema::hasColumn('bentuk_pelatihans', 'jalur')) {
-                $table->string('jalur')->nullable()->after('name');
+                $table->string('jalur')->nullable()->after('bentuk');
             }
         });
     }

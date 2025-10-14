@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('bentuk_pelatihan', function (Blueprint $table) {
+        Schema::table('bentuk_pelatihans', function (Blueprint $table) {
             // Drop primary key on ulid if exists
-            if (Schema::hasColumn('bentuk_pelatihan', 'ulid')) {
+            if (Schema::hasColumn('bentuk_pelatihans', 'ulid')) {
                 $table->dropPrimary();
                 $table->dropColumn('ulid');
             }
 
             // Add id as primary key if not exists
-            if (!Schema::hasColumn('bentuk_pelatihan', 'id')) {
+            if (!Schema::hasColumn('bentuk_pelatihans', 'id')) {
                 $table->bigIncrements('id')->first();
             }
         });

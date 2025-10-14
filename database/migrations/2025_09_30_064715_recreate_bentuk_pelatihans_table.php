@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Drop foreign key first
+        // Drop foreign key constraint first
         Schema::table('bangkoms', function (Blueprint $table) {
-            $table->dropForeign(['bentuk_pelatihan_id']);
+            if (Schema::hasColumn('bangkoms', 'bentuk_pelatihan_id')) {
+                $table->dropForeign(['bentuk_pelatihan_id']);
+            }
         });
 
         Schema::dropIfExists('bentuk_pelatihans');
 
-        Schema::create('bentuk_pelatihan', function (Blueprint $table) {
-            $table->ulid('ulid')->primary();
+        Schema::create('bentuk_pelatihans', function (Blueprint $table) {
+            $table->id();
             $table->string('jalur')->nullable();
             $table->string('bentuk')->nullable();
             $table->string('deskripsi')->nullable();
@@ -28,8 +30,8 @@ return new class extends Migration
 
         // Add foreign key back
         Schema::table('bangkoms', function (Blueprint $table) {
-            $table->string('bentuk_pelatihan_id')->nullable()->change();
-            $table->foreign('bentuk_pelatihan_id')->references('ulid')->on('bentuk_pelatihan')->cascadeOnDelete();
+            $table->unsignedBigInteger('bentuk_pelatihan_id')->nullable()->change();
+            $table->foreign('bentuk_pelatihan_id')->references('id')->on('bentuk_pelatihans')->cascadeOnDelete();
         });
     }
 

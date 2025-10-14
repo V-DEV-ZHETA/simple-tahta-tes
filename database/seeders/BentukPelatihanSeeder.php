@@ -13,9 +13,9 @@ class BentukPelatihanSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['name' => 'Bentuk A'],
-            ['name' => 'Bentuk B'],
-            ['name' => 'Bentuk C'],
+            ['bentuk' => 'Bentuk A', 'jalur' => 'Dalam Daerah', 'deskripsi' => 'Deskripsi Bentuk A'],
+            ['bentuk' => 'Bentuk B', 'jalur' => 'Luar Daerah', 'deskripsi' => 'Deskripsi Bentuk B'],
+            ['bentuk' => 'Bentuk C', 'jalur' => 'Nasional', 'deskripsi' => 'Deskripsi Bentuk C'],
         ];
 
         DB::table('bentuk_pelatihans')->insert($data);
