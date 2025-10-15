@@ -30,29 +30,53 @@ class WidyaiswaraResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Grid::make(2)
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->label('Nama')
-                            ->required()
-                            ->maxLength(255)
-                            ->columnSpan(2),
-                        Forms\Components\TextInput::make('nip')
-                            ->label('NIP')
-                            ->required()
-                            ->maxLength(50)
-                            ->columnSpan(2),
-                        Forms\Components\TextInput::make('email')
-                            ->label('Email')
-                            ->email()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('phone')
-                            ->label('Telepon')
-                            ->maxLength(20),
-                    ]),
-            ]);
+        // ...existing code...
+            return $form
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Forms\Components\TextInput::make('name')
+                                ->label('Nama')
+                                ->placeholder('Masukkan nama lengkap')
+                                ->required()
+                                ->maxLength(255)
+                                ->helperText('Nama lengkap sesuai identitas.')
+                                ->columnSpan(2),
+                            Forms\Components\TextInput::make('nip')
+                                ->label('NIP')
+                                ->placeholder('Masukkan NIP')
+                                ->required()
+                                ->maxLength(50)
+                                ->unique(ignoreRecord: true)
+                                ->mask('999999999999999999')
+                                ->helperText('Nomor Induk Pegawai, harus unik.')
+                                ->columnSpan(2),
+                            Forms\Components\TextInput::make('email')
+                                ->label('Email')
+                                ->placeholder('contoh@email.com')
+                                ->email()
+                                ->maxLength(255)
+                                ->unique(ignoreRecord: true)
+                                ->helperText('Email aktif, harus unik.'),
+                            Forms\Components\TextInput::make('phone')
+                                ->label('Telepon')
+                                ->placeholder('08xxxxxxxxxx')
+                                ->maxLength(20)
+                                ->mask('999999999999')
+                                ->helperText('Nomor telepon yang dapat dihubungi.'),
+                            Forms\Components\Select::make('gender')
+                                ->label('Jenis Kelamin')
+                                ->options([
+                                    'L' => 'Laki-laki',
+                                    'P' => 'Perempuan',
+                                ])
+                                ->required()
+                                ->helperText('Pilih jenis kelamin.'),
+                            Forms\Components\DatePicker::make('birthdate')
+                                ->label('Tanggal Lahir')
+                                ->helperText('Tanggal lahir sesuai identitas.'),
+                        ]),
+                ]);
     }
 
     public static function table(Table $table): Table
@@ -105,9 +129,6 @@ class WidyaiswaraResource extends Resource
     {
         return [
             'index' => Pages\ListWidyaiswaras::route('/'),
-            'create' => Pages\CreateWidyaiswara::route('/create'),
-            'edit' => Pages\EditWidyaiswara::route('/{record}/edit'),
-            'view' => Pages\ViewWidyaiswara::route('/{record}'),
         ];
     }
 }

@@ -66,7 +66,7 @@ class BangkomResource extends Resource
                                 ->required(),
                             Select::make('instansi_id')
                                 ->label('Instansi Pelaksana')
-                                ->relationship('instansi', 'nama_instansi')
+                                ->relationship('instansi', 'name')
                                 ->searchable()
                                 ->preload()
                                 ->required(),
@@ -79,19 +79,19 @@ class BangkomResource extends Resource
                                 ->maxLength(255),
                             Select::make('jenis_pelatihan_id')
                                 ->label('Jenis Pelatihan*')
-                                ->relationship('jenisPelatihan', 'nama')
+                                ->relationship('jenisPelatihan', 'name')
                                 ->searchable()
                                 ->preload()
                                 ->required(),
                             Select::make('bentuk_pelatihan_id')
                                 ->label('Bentuk Pelatihan')
-                                ->relationship('bentukPelatihan', 'label')
+                                ->relationship('bentukPelatihan', 'bentuk')
                                 ->searchable()
                                 ->preload()
                                 ->required(),
                             Select::make('sasaran_id')
                                 ->label('Sasaran')
-                                ->relationship('sasaran', 'nama')
+                                ->relationship('sasaran', 'name')
                                 ->searchable()
                                 ->preload()
                                 ->required(),
@@ -134,7 +134,7 @@ class BangkomResource extends Resource
                             TextInput::make('nama_panitia')
                                 ->required()
                                 ->maxLength(255)
-                                ->label('Nama Peserta'),
+                                ->label('Nama Panitia'),
                             TextInput::make('no_telp')
                                 ->required()
                                 ->label('Telepon Panitia')
@@ -173,13 +173,11 @@ class BangkomResource extends Resource
                             Textarea::make('deskripsi')
                                 ->label('Deskripsi')
                                 ->rows(3)
-                                ->maxLength(1000)
-                                ->required(),
+                                ->maxLength(1000),
                             Textarea::make('persyaratan')
                                 ->label('Persyaratan')
                                 ->rows(3)
-                                ->maxLength(1000)
-                                ->required(),
+                                ->maxLength(1000),
                         ])->columnSpanFull(),
 
                 ])
@@ -214,26 +212,37 @@ class BangkomResource extends Resource
                          border-radius:6px;font-size:12px;font-weight:600;padding:2px 8px;margin-top:4px;'>{$kode}</span>" : $state;
                     })
                     ->html(),
-                Tables\Columns\TextColumn::make('jenisPelatihan.nama')
+                Tables\Columns\TextColumn::make('jenisPelatihan.name')
                     ->label('Jenis Pelatihan')
                     ->searchable()
                     ->sortable()
                     ->default('-')
                     ->placeholder('-'),
                 Tables\Columns\TextColumn::make('tanggal_mulai')
-                    ->label('Tanggal Pelatihan')
-                    ->sortable()
-                    ->formatStateUsing(function ($state, $record) {
-                        if (!$record->tanggal_mulai || !$record->tanggal_selesai) {
-                            return "-";
-                        }
+    ->label('Tanggal Pelatihan')
+    ->sortable()
+    ->getStateUsing(fn(\App\Models\Bangkom $record) => $record->tanggal_mulai) // Digunakan untuk sorting
+    ->formatStateUsing(function ($state, $record) {
+        // Pastikan kedua tanggal ada
+        if (empty($record->tanggal_mulai) || empty($record->tanggal_selesai)) {
+            return "-";
+        }
 
-                        $mulai = Carbon::parse($record->tanggal_mulai)->translatedFormat("d M");
-                        $akhir = Carbon::parse($record->tanggal_selesai)->translatedFormat("d M Y");
+        // Parse tanggal untuk memastikan itu adalah objek Carbon
+        $mulai = \Carbon\Carbon::parse($record->tanggal_mulai);
+        $akhir = \Carbon\Carbon::parse($record->tanggal_selesai);
 
-                        return "$mulai<small> <span class='text-gray-500 text-sm'>s/d</span> </small> $akhir";
-                    })
-                    ->html(),
+        // Format tanggal mulai: Hanya tanggal dan bulan (e.g., "16 Okt")
+        $formatMulai = $mulai->translatedFormat("d M");
+        
+        // Format tanggal selesai: Hanya tanggal dan bulan (e.g., "22 Okt")
+        $formatAkhir = $akhir->translatedFormat("d M"); 
+
+        // Tampilkan rentang tanggal sesuai contoh ("16 Okt s/d 22 Okt")
+        // Saya menggunakan tag <span> dengan class untuk styling yang lebih bersih dari <small>
+        return "$formatMulai <span class='text-gray-500 text-sm'>s/d</span> $formatAkhir";
+    })
+    ->html(),
                 Tables\Columns\TextColumn::make('kuota')
                     ->label('Kuota')
                     ->searchable()
