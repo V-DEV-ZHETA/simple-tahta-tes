@@ -12,9 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bangkoms', function (Blueprint $table) {
-            if (!Schema::hasColumn('bangkoms', 'dokumentasi')) {
-                $table->json('dokumentasi')->nullable()->after('contoh_sertifikat');
-            }
+            //
         });
     }
 
@@ -24,9 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('bangkoms', function (Blueprint $table) {
-            if (Schema::hasColumn('bangkoms', 'dokumentasi')) {
-                $table->dropColumn('dokumentasi');
-            }
+            //
         });
     }
 };

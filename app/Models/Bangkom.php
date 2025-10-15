@@ -4,14 +4,30 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Instansi;
 use App\Models\JenisPelatihan;
 use App\Models\Sasaran;
+use App\Models\BentukPelatihan;
+use App\Models\PermohonanFile;
+use App\Models\StatusHistory;
+use App\Enums\BangkomStatus;
 
 class Bangkom extends Model
 {
     use SoftDeletes;
+
+    /**
+     * Relasi yang selalu di-load (eager loading)
+     */
+    protected $with = [
+        'jenisPelatihan',
+        'bentukPelatihan',
+        'sasaran',
+    ];
+
     protected $fillable = [
+        'users_id',
         'instansi_id',
         'unit_kerja',
         'nama_kegiatan',
@@ -20,69 +36,94 @@ class Bangkom extends Model
         'bentuk_pelatihan_id',
         'sasaran_id',
         'tanggal_mulai',
-        'tanggal_berakhir',
+        'tanggal_selesai',
         'tempat',
         'alamat',
         'kuota',
         'nama_panitia',
-        'telepon_panitia',
+        'no_telp',
         'status',
         'kurikulum',
-        'file_permohonan_path',
-        'bahan_tayang_path',
-        'pelaporan_path',
-        'absensi_path',
-        'surat_ijin_path',
-        'contoh_spesimen_path',
-        'sttp_path',
+        'deskripsi',
+        'persyaratan',
+        'file_permohonan',
+        'bahan_tayang',
+        'pelaporan',
+        'absensi',
+        'surat_ttd',
+        'contoh_sertifikat',
         'dokumentasi',
+        'catatan',
     ];
 
     protected $casts = [
         'tanggal_mulai' => 'date',
-        'tanggal_berakhir' => 'date',
+        'tanggal_selesai' => 'date',
         'kuota' => 'integer',
         'kurikulum' => 'array',
         'dokumentasi' => 'array',
+        'status' => BangkomStatus::class,
     ];
 
+    /**
+     * Relasi dengan User
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'users_id');
+    }
 
-
-
-
-
-
-    // Relasi dengan model lain
+    /**
+     * Relasi dengan Instansi
+     */
     public function instansi()
     {
         return $this->belongsTo(Instansi::class);
     }
 
+    /**
+     * Relasi dengan Jenis Pelatihan
+     */
     public function jenisPelatihan()
     {
         return $this->belongsTo(JenisPelatihan::class);
     }
 
+    /**
+     * Relasi dengan Bentuk Pelatihan
+     */
     public function bentukPelatihan()
     {
-        return $this->belongsTo(\App\Models\BentukPelatihan::class);
+        return $this->belongsTo(BentukPelatihan::class);
     }
 
+    /**
+     * Relasi dengan Sasaran
+     */
     public function sasaran()
     {
         return $this->belongsTo(Sasaran::class);
     }
 
+    /**
+     * Relasi dengan Permohonan Files
+     */
     public function permohonanFiles()
     {
         return $this->hasMany(PermohonanFile::class);
     }
 
-    public function statusHistories()
+    /**
+     * Relasi dengan Status History
+     */
+    public function historiStatuses()
     {
         return $this->hasMany(StatusHistory::class);
     }
 
+    /**
+     * Boot method untuk event model
+     */
     protected static function booted()
     {
         static::updating(function ($bangkom) {
@@ -90,12 +131,14 @@ class Bangkom extends Model
                 $oldStatus = $bangkom->getOriginal('status');
                 $newStatus = $bangkom->status;
 
-                \App\Models\StatusHistory::create([
+                StatusHistory::create([
                     'bangkom_id' => $bangkom->getKey(),
-                    'old_status' => $oldStatus,
-                    'new_status' => $newStatus,
-                    'changed_by' => auth()->id(),
-                    'changed_at' => now(),
+                    'status_sebelum' => $oldStatus instanceof BangkomStatus ? $oldStatus->value : $oldStatus,
+                    'status_menjadi' => $newStatus instanceof BangkomStatus ? $newStatus->value : $newStatus,
+                    'new_status' => $newStatus instanceof BangkomStatus ? $newStatus->value : $newStatus, // Tambahkan ini
+                    'users_id' => Auth::id(),
+                    'oleh' => Auth::user()?->name ?? 'System',
+                    'catatan' => 'Pengajuan Permohonan',
                 ]);
             }
         });

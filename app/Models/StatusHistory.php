@@ -3,29 +3,32 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StatusHistory extends Model
 {
     protected $fillable = [
         'bangkom_id',
-        'old_status',
+        'status_sebelum',
+        'status_menjadi',
         'new_status',
-        'changed_by',
-        'changed_at',
+        'users_id',
+        'oleh',
+        'catatan',
     ];
 
-    protected $dates = [
-        'changed_at',
-    ];
-
-    public function bangkom(): BelongsTo
+    /**
+     * Relasi dengan Bangkom
+     */
+    public function bangkom()
     {
         return $this->belongsTo(Bangkom::class);
     }
 
-    public function user(): BelongsTo
+    /**
+     * Relasi dengan User
+     */
+    public function user()
     {
-        return $this->belongsTo(User::class, 'changed_by');
+        return $this->belongsTo(User::class, 'users_id');
     }
 }
