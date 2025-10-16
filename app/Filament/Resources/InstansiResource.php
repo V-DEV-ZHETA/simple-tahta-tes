@@ -74,16 +74,10 @@ class InstansiResource extends Resource
                 Tables\Columns\TextColumn::make('address') // Use a valid attribute or no attribute
                     ->label('Kontak')
                     ->formatStateUsing(function ($record) {
-                        $phone = $record->phone ? "No. Telepon : {$record->phone}" : "-";
-                        $email = $record->email ? "Email : {$record->email}" : "";
-                        $website = $record->website ? "Website : {$record->website}" : "";
-                        $contact =$phone;
-                        if ($email) {
-                            $contact .= "<br>" . $email;
-                        }
-                        if ($website) {
-                            $contact .= "<br>" . $website;
-                        }
+                        $phone = $record->phone ? "No. Telepon : {$record->phone}" : "No. Telepon : -";
+                        $email = $record->email ? "Email : {$record->email}" : "Email : ";
+                        $website = $record->website ? "Website : {$record->website}" : "Website : -";
+                        $contact = $phone . "<br>" . $email . "<br>" . $website;
                         return $contact;
                     })
                     ->html()
