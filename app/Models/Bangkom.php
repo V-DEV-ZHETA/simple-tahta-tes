@@ -54,6 +54,7 @@ class Bangkom extends Model
         'contoh_sertifikat',
         'dokumentasi',
         'catatan',
+        'file_sttp',
     ];
 
     protected $casts = [
@@ -62,6 +63,7 @@ class Bangkom extends Model
         'kuota' => 'integer',
         'kurikulum' => 'array',
         'dokumentasi' => 'array',
+        'file_sttp' => 'array',
         'status' => BangkomStatus::class,
     ];
 

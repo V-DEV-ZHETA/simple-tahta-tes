@@ -506,15 +506,87 @@ class BangkomResource extends Resource
                         ->modalSubmitAction(false)
                         ->modalCancelActionLabel('Tutup'),
 
+                    Tables\Actions\Action::make('verifikasiTerbitkanSTTP')
+                        ->label('Verifikasi & Terbitkan STTP')
+                        ->icon('heroicon-o-document-check')
+                        ->color('success')
+                        ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::MenungguVerifikasiII)
+                        ->form([
+                            Forms\Components\FileUpload::make('file_sttp')
+                                ->label('File STTP')
+                                ->required()
+                                ->acceptedFileTypes([
+                                    'application/pdf',
+                                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                    'application/msword',
+                                ])
+                                ->maxSize(102400)
+                                ->helperText('*Ukuran file maksimum: 100MB. Format yang diijinkan: PDF, DOCX.')
+                                ->directory('sttp')
+                                ->visibility('private')
+                                ->downloadable()
+                                ->openable()
+                                ->previewable(),
+                        ])
+                        ->modalHeading('Verifikasi & Terbitkan STTP')
+                        ->modalDescription('Upload file STTP dan konfirmasi penerbitan.')
+                        ->modalSubmitActionLabel('Terbitkan STTP')
+                        ->action(function (Bangkom $record, array $data) {
+                            $record->update([
+                                'status' => BangkomStatus::TerbitSTTP,
+                                'file_sttp' => $data['file_sttp'],
+                            ]);
+
+                            Notification::make()
+                                ->title('STTP berhasil diterbitkan')
+                                ->success()
+                                ->send();
+                        }),
+
+                    Tables\Actions\Action::make('lihatSTTP')
+                        ->label('STTP')
+                        ->icon('heroicon-o-document')
+                        ->color('info')
+                        ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::TerbitSTTP)
+                        ->form([
+                            Forms\Components\FileUpload::make('file_sttp')
+                                ->label('File STTP')
+                                ->acceptedFileTypes([
+                                    'application/pdf',
+                                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                    'application/msword',
+                                ])
+                                ->maxSize(102400)
+                                ->helperText('*Ukuran file maksimum: 100MB. Format yang diijinkan: PDF, DOCX.')
+                                ->directory('sttp')
+                                ->visibility('private')
+                                ->downloadable()
+                                ->openable()
+                                ->previewable()
+                                ->default(fn(Bangkom $record) => $record->file_sttp),
+                        ])
+                        ->modalHeading('File STTP')
+                        ->modalDescription('Lihat atau update file STTP yang telah diupload.')
+                        ->modalSubmitActionLabel('Update STTP')
+                        ->action(function (Bangkom $record, array $data) {
+                            $record->update([
+                                'file_sttp' => $data['file_sttp'],
+                            ]);
+
+                            Notification::make()
+                                ->title('File STTP berhasil diupdate')
+                                ->success()
+                                ->send();
+                        }),
+
 
                     Tables\Actions\ViewAction::make(),
-                    RestoreAction::make(),
                     Tables\Actions\EditAction::make()
                         ->color('gray')
                         ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::Draft),
                     Tables\Actions\DeleteAction::make()
                         ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::Draft),
-
+                    RestoreAction::make(),
                     Tables\Actions\Action::make('forceDelete')
                         ->label('Force Delete')
                         ->icon('heroicon-o-trash')
