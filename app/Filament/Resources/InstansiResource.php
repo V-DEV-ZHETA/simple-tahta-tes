@@ -47,7 +47,6 @@ class InstansiResource extends Resource
                             ->maxLength(255),
                         Forms\Components\TextInput::make('website')
                             ->label('Website')
-                            ->url()
                             ->maxLength(255),
                     ]),
             ]);
