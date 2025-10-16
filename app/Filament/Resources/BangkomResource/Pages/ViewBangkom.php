@@ -124,7 +124,7 @@ class ViewBangkom extends ViewRecord
                     ->schema([
                         Repeater::make('kurikulum')
                             ->schema([
-                                TextInput::make('no')
+                                TextInput::make('Narasumber')
                                     ->label('Narasumber')
                                     ->disabled()
                                     ->dehydrated(),

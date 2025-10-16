@@ -268,6 +268,87 @@ class BangkomResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\ActionGroup::make([
+                    // Action untuk verifikasi dan terbitkan STTP pada status Menunggu Verifikasi II
+                    Tables\Actions\Action::make('verifikasiTerbitkanSTTP')
+                        ->label('Verifikasi & Terbitkan STTP')
+                        ->icon('heroicon-o-document-check')
+                        ->color('success')
+                        ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::MenungguVerifikasiII)
+                        ->form([
+                            // Form upload file STTP
+                            Forms\Components\FileUpload::make('file_sttp')
+                                ->label('File STTP')
+                                ->required()
+                                ->acceptedFileTypes([
+                                    'application/pdf',
+                                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                    'application/msword',
+                                ])
+                                ->maxSize(102400)
+                                ->helperText('*Ukuran file maksimum: 100MB. Format yang diijinkan: PDF, DOCX.')
+                                ->directory('sttp')
+                                ->visibility('private')
+                                ->downloadable()
+                                ->openable()
+                                ->previewable(),
+                        ])
+                        ->modalHeading('Verifikasi & Terbitkan STTP')
+                        ->modalDescription('Upload file STTP dan konfirmasi penerbitan.')
+                        ->modalSubmitActionLabel('Terbitkan STTP')
+                        ->action(function (Bangkom $record, array $data) {
+                            // Update status ke Terbit STTP dan simpan file
+                            $record->update([
+                                'status' => BangkomStatus::TerbitSTTP,
+                                'file_sttp' => $data['file_sttp'],
+                            ]);
+
+                            // Kirim notifikasi sukses
+                            Notification::make()
+                                ->title('STTP berhasil diterbitkan')
+                                ->success()
+                                ->send();
+                        }),
+
+                        // Action untuk melihat dan update file STTP pada status Terbit STTP
+                    Tables\Actions\Action::make('lihatSTTP')
+                        ->label('STTP')
+                        ->icon('heroicon-o-document')
+                        ->color('success')
+                        ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::TerbitSTTP)
+                        ->form([
+                            // Form upload file STTP dengan default value dari record
+                            Forms\Components\FileUpload::make('file_sttp')
+                                ->label('File STTP')
+                                ->acceptedFileTypes([
+                                    'application/pdf',
+                                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                    'application/msword',
+                                ])
+                                ->maxSize(102400)
+                                ->helperText('*Ukuran file maksimum: 100MB. Format yang diijinkan: PDF, DOCX.')
+                                ->directory('sttp')
+                                ->visibility('private')
+                                ->downloadable()
+                                ->openable()
+                                ->previewable()
+                                ->default(fn(Bangkom $record) => $record->file_sttp),
+                        ])
+                        ->modalHeading('File STTP')
+                        ->modalDescription('Lihat atau update file STTP yang telah diupload.')
+                        ->modalSubmitActionLabel('Update STTP')
+                        ->action(function (Bangkom $record, array $data) {
+                            // Update file STTP
+                            $record->update([
+                                'file_sttp' => $data['file_sttp'],
+                            ]);
+
+                            // Kirim notifikasi sukses
+                            Notification::make()
+                                ->title('File STTP berhasil diupdate')
+                                ->success()
+                                ->send();
+                        }),
+
                     // Actions from original class (cetakPermohonan, ajukanPermohonan, etc.) are kept for functionality
                     Tables\Actions\Action::make('cetakPermohonan')
                         ->label('Cetak Permohonan')
@@ -494,9 +575,24 @@ class BangkomResource extends Resource
                             $oldStatus = $record->status;
                             $newStatus = BangkomStatus::from($data['status']);
 
+                            // Simpan status lama untuk histori
+                            $oldStatusValue = $oldStatus instanceof BangkomStatus ? $oldStatus->value : $oldStatus;
+                            $newStatusValue = $newStatus instanceof BangkomStatus ? $newStatus->value : $newStatus;
+
                             $record->update([
                                 'status' => $newStatus,
                                 'catatan' => $data['catatan'] ?? null,
+                            ]);
+
+                            // Catat histori status secara manual untuk memastikan tercatat
+                            \App\Models\StatusHistory::create([
+                                'bangkom_id' => $record->getKey(),
+                                'status_sebelum' => $oldStatusValue,
+                                'status_menjadi' => $newStatusValue,
+                                'new_status' => $newStatusValue,
+                                'users_id' => Auth::id(),
+                                'oleh' => Auth::user()?->name ?? 'System',
+                                'catatan' => $data['catatan'] ?? 'Status diubah manual',
                             ]);
 
                             Notification::make()
@@ -519,92 +615,14 @@ class BangkomResource extends Resource
                         ->modalSubmitAction(false)
                         ->modalCancelActionLabel('Tutup'),
 
-                    // Action untuk verifikasi dan terbitkan STTP pada status Menunggu Verifikasi II
-                    Tables\Actions\Action::make('verifikasiTerbitkanSTTP')
-                        ->label('Verifikasi & Terbitkan STTP')
-                        ->icon('heroicon-o-document-check')
-                        ->color('success')
-                        ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::MenungguVerifikasiII)
-                        ->form([
-                            // Form upload file STTP
-                            Forms\Components\FileUpload::make('file_sttp')
-                                ->label('File STTP')
-                                ->required()
-                                ->acceptedFileTypes([
-                                    'application/pdf',
-                                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                                    'application/msword',
-                                ])
-                                ->maxSize(102400)
-                                ->helperText('*Ukuran file maksimum: 100MB. Format yang diijinkan: PDF, DOCX.')
-                                ->directory('sttp')
-                                ->visibility('private')
-                                ->downloadable()
-                                ->openable()
-                                ->previewable(),
-                        ])
-                        ->modalHeading('Verifikasi & Terbitkan STTP')
-                        ->modalDescription('Upload file STTP dan konfirmasi penerbitan.')
-                        ->modalSubmitActionLabel('Terbitkan STTP')
-                        ->action(function (Bangkom $record, array $data) {
-                            // Update status ke Terbit STTP dan simpan file
-                            $record->update([
-                                'status' => BangkomStatus::TerbitSTTP,
-                                'file_sttp' => $data['file_sttp'],
-                            ]);
+                    
 
-                            // Kirim notifikasi sukses
-                            Notification::make()
-                                ->title('STTP berhasil diterbitkan')
-                                ->success()
-                                ->send();
-                        }),
-
-                    // Action untuk melihat dan update file STTP pada status Terbit STTP
-                    Tables\Actions\Action::make('lihatSTTP')
-                        ->label('STTP')
-                        ->icon('heroicon-o-document')
-                        ->color('info')
-                        ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::TerbitSTTP)
-                        ->form([
-                            // Form upload file STTP dengan default value dari record
-                            Forms\Components\FileUpload::make('file_sttp')
-                                ->label('File STTP')
-                                ->acceptedFileTypes([
-                                    'application/pdf',
-                                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                                    'application/msword',
-                                ])
-                                ->maxSize(102400)
-                                ->helperText('*Ukuran file maksimum: 100MB. Format yang diijinkan: PDF, DOCX.')
-                                ->directory('sttp')
-                                ->visibility('private')
-                                ->downloadable()
-                                ->openable()
-                                ->previewable()
-                                ->default(fn(Bangkom $record) => $record->file_sttp),
-                        ])
-                        ->modalHeading('File STTP')
-                        ->modalDescription('Lihat atau update file STTP yang telah diupload.')
-                        ->modalSubmitActionLabel('Update STTP')
-                        ->action(function (Bangkom $record, array $data) {
-                            // Update file STTP
-                            $record->update([
-                                'file_sttp' => $data['file_sttp'],
-                            ]);
-
-                            // Kirim notifikasi sukses
-                            Notification::make()
-                                ->title('File STTP berhasil diupdate')
-                                ->success()
-                                ->send();
-                        }),
+                    
 
 
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make()
-                        ->color('gray')
-                        ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::Draft),
+                        ->color('gray'),
                     Tables\Actions\DeleteAction::make()
                         ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::Draft),
                     RestoreAction::make(),

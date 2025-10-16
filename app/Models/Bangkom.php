@@ -9,7 +9,7 @@ use App\Models\Instansi;
 use App\Models\JenisPelatihan;
 use App\Models\Sasaran;
 use App\Models\BentukPelatihan;
-use App\Models\PermohonanFile;
+use App\Models\aonanFile;
 use App\Models\StatusHistory;
 use App\Enums\BangkomStatus;
 
@@ -42,6 +42,7 @@ class Bangkom extends Model
         'kuota',
         'nama_panitia',
         'no_telp',
+        'narasumber',
         'status',
         'kurikulum',
         'deskripsi',
@@ -120,7 +121,7 @@ class Bangkom extends Model
      */
     public function historiStatuses()
     {
-        return $this->hasMany(StatusHistory::class);
+        return $this->hasMany(StatusHistory::class)->orderBy('created_at', 'desc');
     }
 
     /**

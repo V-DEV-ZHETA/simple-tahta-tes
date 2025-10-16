@@ -11,7 +11,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($bangkom->statusHistories ?? [] as $history)
+            @forelse($bangkom->historiStatuses ?? [] as $history)
             <tr>
                 <td class="py-2 px-4 border-b">{{ $history->status_sebelum }}</td>
                 <td class="py-2 px-4 border-b">{{ $history->status_menjadi }}</td>
@@ -19,7 +19,11 @@
                 <td class="py-2 px-4 border-b">{{ $history->catatan }}</td>
                 <td class="py-2 px-4 border-b">{{ $history->created_at->format('d/m/Y H:i') }}</td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="5" class="py-4 px-4 text-center text-gray-500">Belum ada histori status</td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
 </div>
