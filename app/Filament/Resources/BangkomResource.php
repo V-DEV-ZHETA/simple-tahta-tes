@@ -299,12 +299,14 @@ class BangkomResource extends Resource
                                     ->send();
                             }
                         }),
+                    // Action untuk mengajukan permohonan dari status Draft
                     Tables\Actions\Action::make('ajukanPermohonan')
                         ->label('Ajukan Permohonan')
                         ->icon('heroicon-o-paper-airplane')
                         ->color('gray')
                         ->modalHeading('Ajukan Permohonan')
                         ->form([
+                            // Form upload file permohonan
                             Forms\Components\FileUpload::make('file_permohonan')
                                 ->label('File Permohonan')
                                 ->required()
@@ -327,6 +329,7 @@ class BangkomResource extends Resource
                                 ->openable()
                                 ->previewable(),
 
+                            // Checkbox persetujuan
                             Forms\Components\Checkbox::make('persetujuan')
                                 ->label('Dengan ini saya menyetujui bahwa data yang saya isi adalah benar dan dapat dipercaya.')
                                 ->required()
@@ -339,18 +342,21 @@ class BangkomResource extends Resource
                         ->modalCancelActionLabel('Tutup')
                         ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::Draft)
                         ->action(function (Bangkom $record, array $data) {
+                            // Update status ke Menunggu Verifikasi dan simpan file
                             $record->update([
                                 'status' => BangkomStatus::MenungguVerifikasi,
                                 'file_permohonan' => $data['file_permohonan'],
                             ]);
                         }),
 
+                    // Action untuk melihat dan update dokumen permohonan
                     Tables\Actions\Action::make('DokumenPermohonan')
                         ->label('Dokumen Permohonan')
                         ->icon('heroicon-o-document')
                         ->color('gray')
                         ->modalHeading('Dokumen Permohonan')
                         ->form([
+                            // Form upload file permohonan dengan default value dari record
                             Forms\Components\FileUpload::make('file_permohonan')
                                 ->label('File Permohonan')
                                 ->acceptedFileTypes([
@@ -376,10 +382,12 @@ class BangkomResource extends Resource
                         ->modalSubmitActionLabel('Update Dokumen')
                         ->modalCancelActionLabel('Tutup')
                         ->action(function (Bangkom $record, array $data) {
+                            // Update file permohonan
                             $record->update([
                                 'file_permohonan' => $data['file_permohonan'],
                             ]);
 
+                            // Kirim notifikasi sukses
                             Notification::make()
                                 ->title('Dokumen berhasil diupdate')
                                 ->success()
@@ -511,12 +519,14 @@ class BangkomResource extends Resource
                         ->modalSubmitAction(false)
                         ->modalCancelActionLabel('Tutup'),
 
+                    // Action untuk verifikasi dan terbitkan STTP pada status Menunggu Verifikasi II
                     Tables\Actions\Action::make('verifikasiTerbitkanSTTP')
                         ->label('Verifikasi & Terbitkan STTP')
                         ->icon('heroicon-o-document-check')
                         ->color('success')
                         ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::MenungguVerifikasiII)
                         ->form([
+                            // Form upload file STTP
                             Forms\Components\FileUpload::make('file_sttp')
                                 ->label('File STTP')
                                 ->required()
@@ -537,23 +547,27 @@ class BangkomResource extends Resource
                         ->modalDescription('Upload file STTP dan konfirmasi penerbitan.')
                         ->modalSubmitActionLabel('Terbitkan STTP')
                         ->action(function (Bangkom $record, array $data) {
+                            // Update status ke Terbit STTP dan simpan file
                             $record->update([
                                 'status' => BangkomStatus::TerbitSTTP,
                                 'file_sttp' => $data['file_sttp'],
                             ]);
 
+                            // Kirim notifikasi sukses
                             Notification::make()
                                 ->title('STTP berhasil diterbitkan')
                                 ->success()
                                 ->send();
                         }),
 
+                    // Action untuk melihat dan update file STTP pada status Terbit STTP
                     Tables\Actions\Action::make('lihatSTTP')
                         ->label('STTP')
                         ->icon('heroicon-o-document')
                         ->color('info')
                         ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::TerbitSTTP)
                         ->form([
+                            // Form upload file STTP dengan default value dari record
                             Forms\Components\FileUpload::make('file_sttp')
                                 ->label('File STTP')
                                 ->acceptedFileTypes([
@@ -574,10 +588,12 @@ class BangkomResource extends Resource
                         ->modalDescription('Lihat atau update file STTP yang telah diupload.')
                         ->modalSubmitActionLabel('Update STTP')
                         ->action(function (Bangkom $record, array $data) {
+                            // Update file STTP
                             $record->update([
                                 'file_sttp' => $data['file_sttp'],
                             ]);
 
+                            // Kirim notifikasi sukses
                             Notification::make()
                                 ->title('File STTP berhasil diupdate')
                                 ->success()

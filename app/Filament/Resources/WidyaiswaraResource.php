@@ -12,103 +12,105 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\ViewAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Forms\Components\Grid;
 
 class WidyaiswaraResource extends Resource
 {
     protected static ?string $model = Widyaiswara::class;
 
-    protected static ?string $navigationIcon = 'uiw-user';
-
+    protected static ?string $navigationIcon = 'phosphor-user';
     protected static ?string $navigationGroup = 'Master Data';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationLabel = 'Widyaiswara';
+
+    protected static ?string $pluralLabel = 'Widyaiswara';
+
+    protected static ?string $slug = 'widyaiswaras';
+
+    protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
     {
-        // ...existing code...
-            return $form
-                ->schema([
-                    Grid::make(2)
-                        ->schema([
-                            Forms\Components\TextInput::make('name')
-                                ->label('Nama')
-                                ->placeholder('Masukkan nama lengkap')
-                                ->required()
-                                ->maxLength(255)
-                                ->helperText('Nama lengkap sesuai identitas.')
-                                ->columnSpan(2),
-                            Forms\Components\TextInput::make('nip')
-                                ->label('NIP')
-                                ->placeholder('Masukkan NIP')
-                                ->required()
-                                ->maxLength(50)
-                                ->unique(ignoreRecord: true)
-                                ->mask('999999999999999999')
-                                ->helperText('Nomor Induk Pegawai, harus unik.')
-                                ->columnSpan(2),
-                            Forms\Components\TextInput::make('email')
-                                ->label('Email')
-                                ->placeholder('contoh@email.com')
-                                ->email()
-                                ->maxLength(255)
-                                ->unique(ignoreRecord: true)
-                                ->helperText('Email aktif, harus unik.'),
-                            Forms\Components\TextInput::make('phone')
-                                ->label('Telepon')
-                                ->placeholder('08xxxxxxxxxx')
-                                ->maxLength(20)
-                                ->mask('999999999999')
-                                ->helperText('Nomor telepon yang dapat dihubungi.'),
-                            Forms\Components\Select::make('gender')
-                                ->label('Jenis Kelamin')
-                                ->options([
-                                    'L' => 'Laki-laki',
-                                    'P' => 'Perempuan',
-                                ])
-                                ->required()
-                                ->helperText('Pilih jenis kelamin.'),
-                            Forms\Components\DatePicker::make('birthdate')
-                                ->label('Tanggal Lahir')
-                                ->helperText('Tanggal lahir sesuai identitas.'),
-                        ]),
-                ]);
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('nip')
+                    ->label('NIP')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('nama')
+                    ->label('Nama')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('satker')
+                    ->label('Satker')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\Fieldset::make('Kontak')
+                    ->schema([
+                        Forms\Components\TextInput::make('telpon')
+                            ->label('Telepon')
+                            ->tel()
+                            ->numeric()
+                            ->required(),
+                        Forms\Components\TextInput::make('email')
+                            ->label('Email')
+                            ->email()
+                            ->required()
+                            ->unique(ignoreRecord: true, table: 'widyaiswaras'),
+                    ])->columns(1),
+                Forms\Components\Textarea::make('alamat')
+                    ->label('Alamat')
+                    ->rows(3),
+            ])->columns(1); ;
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
+                Tables\Columns\TextColumn::make('no')
                     ->label('No')
-                    ->sortable()
-                    ->toggleable(false),
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Nama')
-                    ->sortable()
-                    ->searchable(),
+                    ->rowIndex(),
                 Tables\Columns\TextColumn::make('nip')
                     ->label('NIP')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->label('Email')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->label('Telepon')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('nama')
+                    ->label('Nama & satker')
+                    ->searchable()
+                    ->formatStateUsing(function ($state, $record) {
+                        $satker = $record->satker ? "<div class='text-xs text-gray-500'>Satker : {$record->satker}</div>" : '';
+                        return "<div>{$state}</div>" . $satker;
+                    })
+                    ->html(),
+                Tables\Columns\TextColumn::make('kontak')
+                    ->label('Kontak')
+                    ->getStateUsing(function ($record) {
+                        $kontak = [];
+
+                        if ($record->telpon) {
+                            $kontak[] = "<span class=\"text-xs\"> No Tlp:</span> <span class=\"text-xs text-gray-500\">  {$record->telpon} </span>";
+                        }
+
+                        if ($record->email) {
+                            $kontak[] = "<span class=\"text-xs\"> Email:</span> <span class=\"text-xs text-gray-500\">  {$record->email} </span>";
+                        }
+
+                        return implode('<br>', $kontak);
+                    })
+                    ->html(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                ActionGroup::make([
-                    ViewAction::make(),
-                    EditAction::make(),
-                    DeleteAction::make(),
+            Tables\Actions\ActionGroup::make([
+                Tables\Actions\EditAction::make()
+                    ->label('Edit')
+                    ->modalWidth('lg'),
+                Tables\Actions\DeleteAction::make()
+                    ->label('Hapus')
+                    ->modalWidth('md')
+                    ->requiresConfirmation(),
                 ]),
             ])
             ->bulkActions([
@@ -129,6 +131,8 @@ class WidyaiswaraResource extends Resource
     {
         return [
             'index' => Pages\ListWidyaiswaras::route('/'),
+            // 'create' => Pages\CreateWidyaiswara::route('/create'),
+            // 'edit' => Pages\EditWidyaiswara::route('/{record}/edit'),
         ];
     }
 }
