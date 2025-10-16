@@ -221,8 +221,8 @@ class BangkomResource extends Resource
                     ->formatStateUsing(function ($state, $record) {
                         $kode = $record->kode_kegiatan ?? '';
                         return $kode ? "{$state}<br><span
-                        style='display:inline-block; background-color:rgba(255, 255, 255, 0.05);color:#d97706; border:1px solid #d97706;
-                         border-radius:6px;font-size:12px;font-weight:600;padding:2px 8px;margin-top:4px;'>{$kode}</span>" : $state;
+                        style='display:inline-block; background-color:rgba(255, 244, 230, 0.9);color:#FF6600; border:1px;
+                         border-radius:6px;font-size:12px;font-weight:600;padding:0px 5px;margin-top:4px;'>{$kode}</span>" : $state;
                     })
                     ->html(),
                 Tables\Columns\TextColumn::make('jenisPelatihan.name')

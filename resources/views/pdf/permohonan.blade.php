@@ -125,9 +125,9 @@
     </div>
 
     <div class="signature">
-        <p>{{ $bangkom->instansi->nama }}, {{ now()->format('d F Y') }}</p>
+        <p>{{ $bangkom->instansi->name ?? 'Instansi Tidak Ditemukan' }}, {{ now()->format('d F Y') }}</p>
         <br><br><br>
-        <p>{{ $bangkom->user->name }}</p>
+        <p>{{ $bangkom->user->name ?? 'User Tidak Ditemukan' }}</p>
     </div>
 </body>
 </html>

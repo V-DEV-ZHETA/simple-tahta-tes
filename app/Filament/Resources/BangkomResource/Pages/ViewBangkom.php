@@ -79,7 +79,7 @@ class ViewBangkom extends ViewRecord
                             ->disabled()
                             ->dehydrated(),
 
-                        DatePicker::make('tanggal_berakhir')
+                        DatePicker::make('tanggal_selesai')
                             ->label('Tanggal Berakhir')
                             ->disabled()
                             ->dehydrated(),
@@ -112,7 +112,7 @@ class ViewBangkom extends ViewRecord
                             ->disabled()
                             ->dehydrated(),
 
-                        TextInput::make('telepon_panitia')
+                        TextInput::make('no_telp')
                             ->label('Telepon Panitia')
                             ->disabled()
                             ->dehydrated()

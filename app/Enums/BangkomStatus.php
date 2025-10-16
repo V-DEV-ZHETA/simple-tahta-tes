@@ -24,7 +24,7 @@ enum BangkomStatus: string
     public function getIcon(): string
     {
         return match($this) {
-            self::Draft => 'heroicon-o-pencil',
+            self::Draft => '',
             self::MenungguVerifikasi => 'heroicon-o-clock',
             self::Pengelolaan => 'heroicon-o-cog',
             self::MenungguVerifikasiII => 'heroicon-o-clock',
