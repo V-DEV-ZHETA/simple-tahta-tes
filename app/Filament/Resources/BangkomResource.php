@@ -544,7 +544,19 @@ class BangkomResource extends Resource
                         ->label('Dokumentasi')
                         ->icon('heroicon-o-camera')
                         ->color('gray')
+                        ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::Pengelolaan)
                         ->url(fn(Bangkom $record): string => BangkomResource::getUrl('dokumentasi', ['record' => $record])),
+
+                    Tables\Actions\Action::make('peserta')
+                        ->label('Peserta')
+                        ->icon('heroicon-o-users')
+                        ->color('gray')
+                        ->visible(fn(Bangkom $record): bool => in_array($record->status, [
+                            BangkomStatus::Pengelolaan,
+                            BangkomStatus::MenungguVerifikasiII,
+                            BangkomStatus::TerbitSTTP,
+                        ]))
+                        ->url(fn(Bangkom $record): string => BangkomResource::getUrl('peserta', ['record' => $record])),
 
                     Tables\Actions\Action::make('ubahStatus')
                         ->label('Ubah Status')
@@ -666,6 +678,7 @@ class BangkomResource extends Resource
             'create' => Pages\CreateBangkom::route('/create'),
             'edit' => Pages\EditBangkom::route('/{record}/edit'),
             'dokumentasi' => Pages\ManageDokumentasi::route('/{record}/dokumentasi'),
+            'peserta' => Pages\ManagePeserta::route('/{record}/peserta'),
             'view' => Pages\ViewBangkom::route('/{record}/view'),
         ];
     }
