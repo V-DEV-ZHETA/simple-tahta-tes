@@ -353,7 +353,6 @@ class BangkomResource extends Resource
                         ->form([
                             Forms\Components\FileUpload::make('file_permohonan')
                                 ->label('File Permohonan')
-                                ->required()
                                 ->acceptedFileTypes([
                                     'application/pdf',
                                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -371,14 +370,20 @@ class BangkomResource extends Resource
                                 ->visibility('private')
                                 ->downloadable()
                                 ->openable()
-                                ->previewable(),
+                                ->previewable()
+                                ->default(fn(Bangkom $record) => $record->file_permohonan),
                         ])
-                        ->modalSubmitAction(false) // Changed action logic to keep it as a viewer/updater
+                        ->modalSubmitActionLabel('Update Dokumen')
                         ->modalCancelActionLabel('Tutup')
                         ->action(function (Bangkom $record, array $data) {
                             $record->update([
                                 'file_permohonan' => $data['file_permohonan'],
                             ]);
+
+                            Notification::make()
+                                ->title('Dokumen berhasil diupdate')
+                                ->success()
+                                ->send();
                         }),
 
                     Tables\Actions\Action::make('KelengkapanDokumen')
