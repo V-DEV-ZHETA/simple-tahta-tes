@@ -36,9 +36,9 @@ class BangkomExport implements FromCollection, WithHeadings, WithMapping, WithTi
             $bangkom->nama_kegiatan,
             $bangkom->jenisPelatihan?->name ?? '',
             Carbon::parse($bangkom->tanggal_mulai)->format('d M Y'),
-            Carbon::parse($bangkom->tanggal_berakhir)->format('d M Y'),
+            Carbon::parse($bangkom->tanggal_selesai)->format('d M Y'),
             $bangkom->kuota,
-            $bangkom->status,
+            $bangkom->status->getLabel(),
         ];
     }
 

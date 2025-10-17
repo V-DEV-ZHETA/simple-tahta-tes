@@ -12,6 +12,8 @@ Humanize all code in the Laravel project to make it look like human-written code
 
 ### Controllers
 - [x] BangkomController.php (already humanized)
+- [x] Update BangkomController.php: Modify downloadDocx method to use table format for main data fields to match PDF layout
+- [x] Update BangkomPrintService.php: Change cetakPermohonan method to generate DOCX instead of PDF
 - [ ] Humanize other controllers
 
 ### Filament Resources
